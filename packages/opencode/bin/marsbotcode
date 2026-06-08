@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+
+process.env.MARSBOTCODE = "1"
+process.env.OPENCODE_BRAND = "marsbotcode"
+
+require("./opencode")

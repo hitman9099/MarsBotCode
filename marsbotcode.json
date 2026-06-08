@@ -1,0 +1,50 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "desktop": {
+    "enabled": true,
+    "startLocalServer": true,
+    "recentProjectsLimit": 20,
+    "autoUpdate": false
+  },
+  "permission": {
+    "bash": "ask",
+    "edit": "ask",
+    "webfetch": "ask",
+    "websearch": "ask",
+    "external_directory": "ask"
+  },
+  "sandbox": {
+    "enabled": true,
+    "mode": "os",
+    "denyRead": [
+      "~/.ssh",
+      "~/.aws",
+      "~/.azure",
+      "~/.config/gcloud",
+      "~/.kube",
+      "~/.docker/config.json",
+      "~/.npmrc",
+      "~/.netrc",
+      "~/.env"
+    ],
+    "allowWrite": [
+      "./",
+      "/tmp"
+    ],
+    "allowedDomains": [
+      "github.com",
+      "gitlab.com",
+      "bitbucket.org",
+      "registry.npmjs.org",
+      "pypi.org",
+      "crates.io",
+      "api.openai.com",
+      "api.anthropic.com",
+      "generativelanguage.googleapis.com"
+    ]
+  },
+  "audit": {
+    "enabled": true,
+    "path": ".marsbot/audit"
+  }
+}
