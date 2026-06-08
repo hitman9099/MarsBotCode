@@ -59,6 +59,8 @@ MarsbotCode 目前仍以 OpenCode 原生权限系统为主。`sandbox doctor` �
 
 - [MarsbotCode 实施说明](docs/marsbotcode-implementation.md)
 - [MarsbotCode 项目规划](docs/marsbotcode-plan.md)
+- [MarsbotCode TodoList](docs/marsbotcode-todolist.md)
+- [MarsbotCode 任务状态记录](docs/marsbotcode-task-status.md)
 
 ## 上游说明
 

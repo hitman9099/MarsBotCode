@@ -6,6 +6,7 @@
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
 - 当前阶段：OpenCode Fork 基础改造与 MarsbotCode 品牌化落地
 - 当前状态：基础实现已完成，等待完整依赖环境下的构建、类型检查和打包验证
+- TodoList：见 `docs/marsbotcode-todolist.md`
 
 ## 已完成事项
 
