@@ -101,10 +101,12 @@
 - [x] 核心 JSON 文件解析检查已通过。
 - [x] CLI bin、logo、Desktop 图标资源存在性已检查。
 - [x] 代码已推送到 `hitman9099/MarsBotCode.git` 的 `main` 分支。
-- [ ] 阻塞：当前机器未安装 Bun，无法执行 `bun install`。
-- [ ] 阻塞：当前机器未安装 Bun，无法执行 `bun turbo typecheck`。
-- [ ] 阻塞：当前机器未安装 Bun，无法执行 `bun test`。
-- [ ] 阻塞：当前机器未安装 Bun，无法执行 Desktop build。
+- [x] Bun `1.3.14` 已安装并验证可用。
+- [x] Windows C++ Build Tools 已安装，`tree-sitter-powershell` 原生依赖可完成安装。
+- [x] `bun install` 已执行通过，并更新 `bun.lock`。
+- [x] `bun run typecheck` 已执行通过。
+- [x] Desktop build 已执行通过。
+- [ ] `bun --cwd packages/opencode test` 已可运行，但当前 Windows 环境仍有 30 个失败项，需要后续兼容性修复。
 - [ ] CI 流程切换为 MarsbotCode 私有化仓库策略。
 - [ ] 移除或调整仍指向 OpenCode 上游发布仓库的自动化流程。
 

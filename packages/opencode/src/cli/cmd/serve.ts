@@ -3,11 +3,14 @@ import { effectCmd } from "../effect-cmd"
 import { withNetworkOptions, resolveNetworkOptions } from "../network"
 import { Flag } from "@opencode-ai/core/flag/flag"
 
+const productName =
+  process.env.OPENCODE_BRAND === "marsbotcode" || process.env.MARSBOTCODE === "1" ? "MarsbotCode" : "opencode"
+
 export const ServeCommand = effectCmd({
   command: "serve",
   aliases: ["server"],
   builder: (yargs) => withNetworkOptions(yargs),
-  describe: "starts a headless MarsbotCode server",
+  describe: `starts a headless ${productName} server`,
   // Server loads instances per-request via x-opencode-directory header — no
   // need for an ambient project InstanceContext at startup.
   instance: false,
@@ -18,7 +21,7 @@ export const ServeCommand = effectCmd({
     }
     const opts = yield* resolveNetworkOptions(args)
     const server = yield* Effect.promise(() => Server.listen(opts))
-    console.log(`MarsbotCode server listening on http://${server.hostname}:${server.port}`)
+    console.log(`${productName} server listening on http://${server.hostname}:${server.port}`)
 
     yield* Effect.never
   }),

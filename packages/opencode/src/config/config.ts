@@ -138,9 +138,11 @@ export class Service extends Context.Service<Service, Interface>()("@opencode/Co
 export const use = serviceUse(Service)
 
 function globalConfigFile() {
-  const candidates = ["marsbotcode.jsonc", "marsbotcode.json", "opencode.jsonc", "opencode.json", "config.json"].map((file) =>
-    path.join(Global.Path.config, file),
-  )
+  const files =
+    process.env.OPENCODE_BRAND === "marsbotcode" || process.env.MARSBOTCODE === "1"
+      ? ["marsbotcode.jsonc", "marsbotcode.json", "opencode.jsonc", "opencode.json", "config.json"]
+      : ["opencode.jsonc", "opencode.json", "config.json", "marsbotcode.jsonc", "marsbotcode.json"]
+  const candidates = files.map((file) => path.join(Global.Path.config, file))
   for (const file of candidates) {
     if (existsSync(file)) return file
   }
@@ -230,6 +232,7 @@ export const layer = Layer.effect(
 
     const loadFile = Effect.fnUntraced(function* (filepath: string, env?: Record<string, string>) {
       log.info("loading", { path: filepath })
+      if (!existsSync(filepath)) return {} as Info
       const text = yield* readConfigFile(filepath)
       if (!text) return {} as Info
       return yield* loadConfig(text, { path: filepath }, env)
