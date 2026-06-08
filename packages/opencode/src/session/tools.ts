@@ -10,9 +10,11 @@ import { ToolRegistry } from "@/tool/registry"
 import { Truncate } from "@/tool/truncate"
 
 import { Plugin } from "@/plugin"
+import { Config } from "@/config/config"
+import * as MarsbotAudit from "@/marsbot/audit"
 import type { TaskPromptOps } from "@/tool/task"
 import { type Tool as AITool, tool, jsonSchema, type ToolExecutionOptions, asSchema } from "ai"
-import { Effect } from "effect"
+import { Cause, Effect } from "effect"
 import { MessageV2 } from "./message-v2"
 import { Session } from "./session"
 import { SessionProcessor } from "./processor"
@@ -41,6 +43,37 @@ export const resolve = Effect.fn("SessionTools.resolve")(function* (input: {
   const registry = yield* ToolRegistry.Service
   const mcp = yield* MCP.Service
   const truncate = yield* Truncate.Service
+  const config = yield* Config.Service
+  const cfg = yield* config.get()
+
+  const writeAudit = (
+    record: Omit<MarsbotAudit.AuditRecord, "sessionID" | "messageID" | "directory" | "agent" | "model">,
+  ) =>
+    Effect.promise(() =>
+      MarsbotAudit.write({
+        config: cfg.audit,
+        directory: input.session.directory,
+        record: {
+          ...record,
+          sessionID: input.session.id,
+          messageID: input.processor.message.id,
+          agent: input.agent.name,
+          model: {
+            providerID: String(input.model.providerID),
+            id: String(input.model.api.id),
+          },
+          directory: input.session.directory,
+        },
+      }),
+    ).pipe(Effect.catch((error) => Effect.sync(() => log.warn("MarsbotCode audit write failed", { error }))))
+
+  const permissionAuditData = (req: Parameters<Tool.Context["ask"]>[0]) =>
+    MarsbotAudit.permission({
+      permission: req.permission,
+      patterns: req.patterns,
+      always: req.always,
+      metadata: req.metadata,
+    })
 
   const context = (args: Record<string, unknown>, options: ToolExecutionOptions): Tool.Context => ({
     sessionID: input.session.id,
@@ -65,14 +98,45 @@ export const resolve = Effect.fn("SessionTools.resolve")(function* (input: {
         }
       }),
     ask: (req) =>
-      permission
-        .ask({
+      Effect.gen(function* () {
+        const request = {
           ...req,
           sessionID: input.session.id,
           tool: { messageID: input.processor.message.id, callID: options.toolCallId },
           ruleset: Permission.merge(input.agent.permission, input.session.permission ?? []),
+        }
+        yield* writeAudit({
+          type: "permission",
+          phase: "permission.request",
+          tool: req.permission,
+          callID: options.toolCallId,
+          data: permissionAuditData(req),
         })
-        .pipe(Effect.orDie),
+        yield* permission.ask(request).pipe(
+          Effect.tap(() =>
+            writeAudit({
+              type: "permission",
+              phase: "permission.granted",
+              tool: req.permission,
+              callID: options.toolCallId,
+              data: permissionAuditData(req),
+            }),
+          ),
+          Effect.catch((error) =>
+            writeAudit({
+              type: "permission",
+              phase: "permission.rejected",
+              tool: req.permission,
+              callID: options.toolCallId,
+              data: {
+                request: permissionAuditData(req),
+                error: MarsbotAudit.error(error),
+              },
+            }).pipe(Effect.flatMap(() => Effect.fail(error))),
+          ),
+          Effect.orDie,
+        )
+      }),
   })
 
   for (const item of yield* registry.tools({
@@ -93,7 +157,29 @@ export const resolve = Effect.fn("SessionTools.resolve")(function* (input: {
               { tool: item.id, sessionID: ctx.sessionID, callID: ctx.callID },
               { args },
             )
-            const result = yield* item.execute(args, ctx)
+            yield* writeAudit({
+              type: "tool",
+              phase: "tool.before",
+              tool: item.id,
+              callID: ctx.callID,
+              data: {
+                args: MarsbotAudit.toolArgs(item.id, args),
+              },
+            })
+            const result = yield* item.execute(args, ctx).pipe(
+              Effect.catchCause((cause) =>
+                writeAudit({
+                  type: "tool",
+                  phase: "tool.error",
+                  tool: item.id,
+                  callID: ctx.callID,
+                  data: {
+                    args: MarsbotAudit.toolArgs(item.id, args),
+                    error: MarsbotAudit.error(Cause.pretty(cause)),
+                  },
+                }).pipe(Effect.flatMap(() => Effect.failCause(cause))),
+              ),
+            )
             const output = {
               ...result,
               attachments: result.attachments?.map((attachment) => ({
@@ -108,6 +194,15 @@ export const resolve = Effect.fn("SessionTools.resolve")(function* (input: {
               { tool: item.id, sessionID: ctx.sessionID, callID: ctx.callID, args },
               output,
             )
+            yield* writeAudit({
+              type: "tool",
+              phase: "tool.after",
+              tool: item.id,
+              callID: ctx.callID,
+              data: {
+                output: MarsbotAudit.toolOutput(output),
+              },
+            })
             if (options.abortSignal?.aborted) {
               yield* input.processor.completeToolCall(options.toolCallId, output)
             }
@@ -134,10 +229,31 @@ export const resolve = Effect.fn("SessionTools.resolve")(function* (input: {
             { tool: key, sessionID: ctx.sessionID, callID: opts.toolCallId },
             { args },
           )
+          yield* writeAudit({
+            type: "tool",
+            phase: "tool.before",
+            tool: key,
+            callID: opts.toolCallId,
+            data: {
+              args: MarsbotAudit.toolArgs(key, args),
+            },
+          })
           const result: Awaited<ReturnType<NonNullable<typeof execute>>> = yield* Effect.gen(function* () {
             yield* ctx.ask({ permission: key, metadata: {}, patterns: ["*"], always: ["*"] })
             return yield* Effect.promise(() => execute(args, opts))
           }).pipe(
+            Effect.catchCause((cause) =>
+              writeAudit({
+                type: "tool",
+                phase: "tool.error",
+                tool: key,
+                callID: opts.toolCallId,
+                data: {
+                  args: MarsbotAudit.toolArgs(key, args),
+                  error: MarsbotAudit.error(Cause.pretty(cause)),
+                },
+              }).pipe(Effect.flatMap(() => Effect.failCause(cause))),
+            ),
             Effect.withSpan("Tool.execute", {
               attributes: {
                 "tool.name": key,
@@ -196,6 +312,15 @@ export const resolve = Effect.fn("SessionTools.resolve")(function* (input: {
             })),
             content: result.content,
           }
+          yield* writeAudit({
+            type: "tool",
+            phase: "tool.after",
+            tool: key,
+            callID: opts.toolCallId,
+            data: {
+              output: MarsbotAudit.toolOutput(output),
+            },
+          })
           if (opts.abortSignal?.aborted) {
             yield* input.processor.completeToolCall(opts.toolCallId, output)
           }

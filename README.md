@@ -12,6 +12,7 @@ MarsbotCode 是基于 [OpenCode](https://github.com/anomalyco/opencode) Fork 改
 - `marsbotcode desktop` 通过 `marsbotcode://open` 唤起桌面客户端。
 - `marsbotcode sandbox doctor` 检查 Linux/macOS/Windows 当前 OS 级沙箱能力。
 - `marsbotcode audit list` 查看 `.marsbot/audit/*.jsonl` 审计日志。
+- 当 `audit.enabled` 为 `true` 时，工具调用和权限审批会自动写入 JSONL 审计日志。
 - Desktop 打包名、AppId、协议、窗口标题和图标已改为 MarsbotCode。
 - 配置系统支持 `marsbotcode.json/jsonc`、`.marsbotcode` 目录，以及 `desktop`、`sandbox`、`audit` 配置字段。
 

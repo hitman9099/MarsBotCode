@@ -17,14 +17,17 @@
 - Desktop 的 AppId、产品名、协议、窗口标题、打包产物名和图标改为 MarsbotCode。
 - 自动更新默认关闭，仅当 `MARSBOTCODE_ENABLE_AUTOUPDATE=1` 时启用。
 - Logo 源图保存在 `docs/assets/marsbot-logo.png`，桌面图标资源保存在 `packages/desktop/resources/icons`。
+- 工具调用前、调用后、调用错误会在 `audit.enabled === true` 时写入 JSONL 审计日志。
+- 权限审批请求、通过和拒绝会在 `audit.enabled === true` 时写入 JSONL 审计日志。
+- `marsbotcode audit list` 支持读取配置中的 `audit.path`，也支持通过 `--path` 指定审计目录。
 
 ## 尚未完成的深接入
 
 以下功能已经有配置和命令基础，但还没有完成运行时强制接入：
 
 - shell 工具的 OS 级沙箱包装。
-- 工具调用前后的自动审计写入。
 - Desktop 内的专用审计面板、沙箱状态面板和权限策略面板。
+- edit/write/apply_patch 的专用文件变更审计摘要字段。
 - IDE 插件最小入口。
 - 企业内部分发、签名、公证和自动更新源。
 
