@@ -339,6 +339,7 @@
         "electron-store": "^10",
         "electron-updater": "^6",
         "electron-window-state": "^5.0.3",
+        "jsonc-parser": "3.3.1",
         "marked": "^15",
       },
       "devDependencies": {

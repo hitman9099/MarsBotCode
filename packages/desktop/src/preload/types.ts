@@ -1,6 +1,7 @@
 import type { DesktopMenuAction } from "@opencode-ai/app/desktop-menu"
 import type { WslServersPlatform } from "@opencode-ai/app/wsl/types"
 import type { UpdaterState } from "@opencode-ai/app/updater"
+import type { MarsbotInsights } from "../main/marsbot-insights"
 export type {
   WslDistroProbe,
   WslInstalledDistro,
@@ -98,4 +99,5 @@ export type ElectronAPI = {
   setBackgroundColor: (color: string) => Promise<void>
   exportDebugLogs: () => Promise<string>
   recordFatalRendererError: (error: FatalRendererError) => Promise<void>
+  getMarsbotInsights: (directory?: string) => Promise<MarsbotInsights>
 }

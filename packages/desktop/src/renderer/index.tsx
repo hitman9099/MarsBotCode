@@ -198,6 +198,8 @@ const createPlatform = (): Platform => {
 
     recordFatalRendererError: (error) => window.api.recordFatalRendererError(error),
 
+    getMarsbotInsights: (directory) => window.api.getMarsbotInsights(directory),
+
     restart: async () => {
       await window.api.killSidecar().catch(() => undefined)
       window.api.relaunch()

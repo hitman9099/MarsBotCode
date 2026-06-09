@@ -6,6 +6,20 @@
 - `[ ]`：尚未完成，需要后续开发或验证。
 - `阻塞`：当前受环境、依赖或外部条件限制，暂时无法完成。
 
+## 本阶段：Desktop MarsbotCode Insights MVP（2026-06-09）
+
+- [x] Desktop main 进程新增 MarsbotCode insights 只读模块，可读取项目 `marsbotcode.json/jsonc`、`.marsbotcode` 配置和 `.marsbot/audit` JSONL。
+- [x] MarsbotCode insights 已覆盖 Windows 弱沙箱、Linux bubblewrap、macOS sandbox-exec、无项目目录、JSONC 配置优先级和最近审计记录读取。
+- [x] Electron IPC、preload、desktop renderer 和 app platform 已接入 `getMarsbotInsights(directory)`。
+- [x] Desktop 状态 popover 新增 `MarsbotCode` 标签页，展示当前项目沙箱状态、平台引擎、配置来源、warning、审计路径和最近审计记录。
+- [x] MarsbotCode 标签页支持刷新状态和打开审计目录。
+- [x] `bun test src/main/marsbot-insights.test.ts` 已通过：3 pass / 0 fail。
+- [x] `git diff --check` 已通过，仅有 Windows 换行提示。
+- [x] `bun run typecheck` 已通过。
+- [ ] 完整 Desktop 审计日志面板、分页、搜索和导出仍未完成。
+- [ ] Desktop 权限审批 UI 仍未完成。
+- [ ] Desktop 沙箱/审计面板的真实 Electron 截图验收仍需在后续桌面试点环境补充。
+
 ## 一、基础代码与品牌化
 
 - [x] 从 OpenCode `dev` 分支建立 MarsbotCode 代码基座。

@@ -4,9 +4,19 @@
 
 - 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
-- 当前阶段：阶段发布打包流水线 MVP
-- 当前状态：Shell 沙箱运行时 MVP 已完成并推送；阶段发布打包流水线已完成，可生成测试验证记录、CLI zip、Desktop Windows 可部署 zip、manifest 和 SHA256SUMS
+- 当前阶段：Desktop MarsbotCode Insights MVP
+- 当前状态：Desktop 状态 popover 已接入 MarsbotCode 沙箱与审计摘要；阶段发布包待最终生成
 - TodoList：见 `docs/marsbotcode-todolist.md`
+
+## 本阶段新增记录：Desktop MarsbotCode Insights MVP
+
+- Desktop main 进程新增 `readMarsbotInsights(directory)` 只读模块，可识别 `marsbotcode.jsonc`、`marsbotcode.json`、`.marsbotcode/marsbotcode.jsonc`、`.marsbotcode/marsbotcode.json`。
+- MarsbotCode insights 会展示 Windows 弱沙箱提示、Linux bubblewrap 可用性、macOS sandbox-exec 可用性、网络域名规则风险提示和无项目目录兜底状态。
+- 审计摘要支持读取配置中的 `audit.path`，按最近 JSONL 记录倒序展示，坏行会被跳过。
+- Electron IPC、preload、desktop renderer 和 app platform 已接入 `getMarsbotInsights(directory)`。
+- Desktop 状态 popover 新增 `MarsbotCode` 标签页，展示沙箱状态、配置来源、warning、审计启用状态、审计目录和最近 5 条审计记录。
+- 本阶段已验证：`bun test src/main/marsbot-insights.test.ts`、`git diff --check`、`bun run typecheck`。
+- 当前限制：完整审计日志面板、权限审批 UI、分页/搜索/导出和真实 Electron 截图验收仍需后续阶段补充。
 
 ## 已完成事项
 

@@ -12,6 +12,7 @@ import { getStore } from "./store"
 import { getPinchZoomEnabled, setPinchZoomEnabled, setTitlebar, updateTitlebar } from "./windows"
 import type { UpdaterController } from "./updater-controller"
 import { createUpdaterSubscriptions } from "./updater-subscriptions"
+import { readMarsbotInsights } from "./marsbot-insights"
 
 const pickerFilters = (ext?: string[]) => {
   if (!ext || ext.length === 0) return undefined
@@ -75,6 +76,9 @@ export function registerIpcHandlers(deps: Deps) {
   ipcMain.handle("export-debug-logs", () => deps.exportDebugLogs())
   ipcMain.handle("record-fatal-renderer-error", (_event: IpcMainInvokeEvent, error: FatalRendererError) =>
     deps.recordFatalRendererError(error),
+  )
+  ipcMain.handle("get-marsbot-insights", (_event: IpcMainInvokeEvent, directory?: string) =>
+    readMarsbotInsights(typeof directory === "string" ? directory : undefined),
   )
   ipcMain.handle("store-get", (_event: IpcMainInvokeEvent, name: string, key: string) => {
     try {

@@ -4,18 +4,29 @@ import { Icon } from "@opencode-ai/ui/icon"
 import { Switch } from "@opencode-ai/ui/switch"
 import { Tabs } from "@opencode-ai/ui/tabs"
 import { showToast } from "@/utils/toast"
-import { useNavigate } from "@solidjs/router"
-import { type Accessor, createEffect, createMemo, For, type JSXElement, onCleanup, Show } from "solid-js"
+import { useNavigate, useParams } from "@solidjs/router"
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createResource,
+  createSignal,
+  For,
+  type JSXElement,
+  onCleanup,
+  Show,
+} from "solid-js"
 import { createStore } from "solid-js/store"
 import { ServerHealthIndicator, ServerRow } from "@/components/server/server-row"
 import { useLanguage } from "@/context/language"
-import { usePlatform } from "@/context/platform"
+import { type MarsbotAuditRecord, type MarsbotInsights, usePlatform } from "@/context/platform"
 import { ServerConnection, useServer } from "@/context/server"
 import { useSync } from "@/context/sync"
 import { type ServerHealth } from "@/utils/server-health"
 import { useGlobal } from "@/context/global"
 import { useSettings } from "@/context/settings"
 import { useMcpToggle } from "@/context/mcp"
+import { decode64 } from "@/utils/base64"
 
 const pluginEmptyMessage = (value: string, file: string): JSXElement => {
   const parts = value.split(file)
@@ -113,6 +124,168 @@ type ServerStatusItem = {
   blocked: boolean
   active: boolean
   onSelect: () => void
+}
+
+const sandboxStatusLabel = (status: MarsbotInsights["sandbox"]["status"]) => {
+  switch (status) {
+    case "active":
+      return "Active"
+    case "weak":
+      return "Weak"
+    case "unavailable":
+      return "Unavailable"
+    case "disabled":
+      return "Disabled"
+  }
+}
+
+const sandboxStatusDot = (status: MarsbotInsights["sandbox"]["status"]) => ({
+  "size-1.5 rounded-full shrink-0": true,
+  "bg-icon-success-base": status === "active",
+  "bg-icon-warning-base": status === "weak" || status === "unavailable",
+  "bg-border-weak-base": status === "disabled",
+})
+
+const auditTitle = (record: MarsbotAuditRecord) => {
+  if (record.data && typeof record.data === "object") {
+    const data = record.data as Record<string, unknown>
+    if (typeof data.title === "string" && data.title.trim()) return data.title
+    if (typeof data.command === "string" && data.command.trim()) return data.command
+  }
+  return record.tool ?? record.phase ?? record.type ?? "audit event"
+}
+
+const auditTime = (value?: string) => {
+  if (!value) return undefined
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleString()
+}
+
+const auditMeta = (record: MarsbotAuditRecord) =>
+  [record.phase ?? record.type, record.tool, auditTime(record.time)].filter(Boolean).join(" / ")
+
+function MarsbotInfoRow(props: { label: string; value: JSXElement }) {
+  return (
+    <div class="grid grid-cols-[86px_minmax(0,1fr)] gap-2 py-1">
+      <div class="text-12-regular text-text-weaker">{props.label}</div>
+      <div class="text-12-regular text-text-base min-w-0 truncate">{props.value}</div>
+    </div>
+  )
+}
+
+function MarsbotCodePanel(props: {
+  directory: () => string | undefined
+  error: () => unknown
+  insights: () => MarsbotInsights | undefined
+  loading: () => boolean
+  onOpenAudit: (path: string) => void
+  onRefresh: () => void
+}) {
+  const records = createMemo(() => props.insights()?.audit.records.slice(0, 5) ?? [])
+
+  return (
+    <div class="flex flex-col px-2 pb-2">
+      <div class="flex flex-col p-3 bg-background-base rounded-sm min-h-14 max-h-[420px] overflow-y-auto">
+        <Show
+          when={props.directory()}
+          fallback={<div class="text-14-regular text-text-base text-center my-auto">Open a project to view MarsbotCode status.</div>}
+        >
+          <Show
+            when={props.insights()}
+            keyed
+            fallback={
+              <div class="text-14-regular text-text-base text-center my-auto">
+                {props.error() ? "MarsbotCode status is unavailable." : "Loading MarsbotCode status..."}
+              </div>
+            }
+          >
+            {(insights) => (
+              <>
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <div classList={sandboxStatusDot(insights.sandbox.status)} />
+                    <div class="min-w-0">
+                      <div class="text-14-regular text-text-base truncate">MarsbotCode</div>
+                      <div class="text-11-regular text-text-weak truncate">{insights.sandbox.message}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    <Button variant="ghost" size="small" icon="reset" class="h-7 px-2" onClick={props.onRefresh}>
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+
+                <div class="mt-3 border-t border-border-weak-base pt-3">
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <div class="text-12-semibold text-text-base">Sandbox</div>
+                    <span class="text-11-regular text-text-weak">{sandboxStatusLabel(insights.sandbox.status)}</span>
+                  </div>
+                  <MarsbotInfoRow label="Engine" value={insights.sandbox.engine} />
+                  <MarsbotInfoRow label="Mode" value={insights.sandbox.mode} />
+                  <Show when={insights.config.path}>
+                    {(configPath) => <MarsbotInfoRow label="Config" value={configPath()} />}
+                  </Show>
+                  <For each={insights.sandbox.rows}>
+                    {([label, value]) => <MarsbotInfoRow label={label} value={value} />}
+                  </For>
+                  <For each={insights.sandbox.warnings}>
+                    {(warning) => (
+                      <div class="flex items-start gap-2 mt-1 text-12-regular text-text-weak">
+                        <Icon name="warning" size="small" class="text-icon-warning-base shrink-0 mt-0.5" />
+                        <span class="min-w-0">{warning}</span>
+                      </div>
+                    )}
+                  </For>
+                </div>
+
+                <div class="mt-3 border-t border-border-weak-base pt-3">
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <div class="text-12-semibold text-text-base">Audit</div>
+                    <span class="text-11-regular text-text-weak">{insights.audit.enabled ? "Enabled" : "Disabled"}</span>
+                  </div>
+                  <Show when={insights.audit.path}>
+                    {(auditPath) => (
+                      <>
+                        <MarsbotInfoRow label="Path" value={auditPath()} />
+                        <Button
+                          variant="ghost"
+                          size="small"
+                          icon="open-file"
+                          class="h-7 px-2 mt-1 self-start"
+                          onClick={() => props.onOpenAudit(auditPath())}
+                        >
+                          Open audit dir
+                        </Button>
+                      </>
+                    )}
+                  </Show>
+
+                  <div class="mt-2 flex flex-col gap-1">
+                    <For
+                      each={records()}
+                      fallback={<div class="text-12-regular text-text-weak">No audit records yet.</div>}
+                    >
+                      {(record) => (
+                        <div class="flex flex-col px-2 py-1 rounded-md bg-surface-base">
+                          <div class="text-12-regular text-text-base truncate">{auditTitle(record)}</div>
+                          <div class="text-11-regular text-text-weak truncate">{auditMeta(record)}</div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                </div>
+              </>
+            )}
+          </Show>
+        </Show>
+        <Show when={props.loading()}>
+          <div class="mt-2 text-11-regular text-text-weak">Refreshing...</div>
+        </Show>
+      </div>
+    </div>
+  )
 }
 
 export function StatusPopoverServerBody() {
@@ -256,6 +429,7 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
   const dialog = useDialog()
   const language = useLanguage()
   const navigate = useNavigate()
+  const params = useParams()
   const settings = useSettings()
 
   const fail = (err: unknown) => {
@@ -289,6 +463,22 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
   )
   const pluginCount = createMemo(() => plugins().length)
   const pluginEmpty = createMemo(() => pluginEmptyMessage(language.t("dialog.plugins.empty"), "opencode.json"))
+  const projectDirectory = createMemo(() => decode64(params.dir))
+  const [marsbotRefresh, setMarsbotRefresh] = createSignal(0)
+  const marsbotSource = createMemo(() => {
+    if (!platform.getMarsbotInsights || !props.shown()) return undefined
+    const directory = projectDirectory()
+    if (!directory) return undefined
+    return {
+      directory,
+      tick: marsbotRefresh(),
+    }
+  })
+  const [marsbotInsights] = createResource(marsbotSource, (source) => platform.getMarsbotInsights!(source.directory))
+  const openMarsbotAudit = (auditPath: string) => {
+    if (!platform.openPath) return
+    void platform.openPath(auditPath).catch(fail)
+  }
 
   return (
     <div class="flex items-center gap-1 w-[360px] rounded-xl shadow-[var(--shadow-lg-border-base)]">
@@ -300,7 +490,7 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
         defaultValue={settings.general.newLayoutDesigns() ? "mcp" : "servers"}
         variant="alt"
       >
-        <Tabs.List data-slot="tablist" class="bg-transparent border-b-0 px-4 pt-2 pb-0 gap-4 h-10">
+        <Tabs.List data-slot="tablist" class="bg-transparent border-b-0 px-4 pt-2 pb-0 gap-3 h-10 overflow-x-auto">
           {!settings.general.newLayoutDesigns() && (
             <Tabs.Trigger value="servers" data-slot="tab" class="text-12-regular">
               {global.servers.list().length > 0 ? `${global.servers.list().length} ` : ""}
@@ -319,6 +509,11 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
             {pluginCount() > 0 ? `${pluginCount()} ` : ""}
             {language.t("status.popover.tab.plugins")}
           </Tabs.Trigger>
+          <Show when={platform.getMarsbotInsights}>
+            <Tabs.Trigger value="marsbotcode" data-slot="tab" class="text-12-regular">
+              MarsbotCode
+            </Tabs.Trigger>
+          </Show>
         </Tabs.List>
 
         {!settings.general.newLayoutDesigns() && (
@@ -497,6 +692,19 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
             </div>
           </div>
         </Tabs.Content>
+
+        <Show when={platform.getMarsbotInsights}>
+          <Tabs.Content value="marsbotcode">
+            <MarsbotCodePanel
+              directory={projectDirectory}
+              error={() => marsbotInsights.error}
+              insights={marsbotInsights}
+              loading={() => marsbotInsights.loading}
+              onOpenAudit={openMarsbotAudit}
+              onRefresh={() => setMarsbotRefresh((value) => value + 1)}
+            />
+          </Tabs.Content>
+        </Show>
       </Tabs>
     </div>
   )

@@ -27,6 +27,43 @@ export type FatalRendererErrorLog = {
   os?: DesktopOS
 }
 
+export type MarsbotSandboxInsight = {
+  enabled: boolean
+  mode: "os" | "off"
+  platform: string
+  status: "disabled" | "active" | "weak" | "unavailable"
+  engine: "bubblewrap" | "seatbelt" | "none"
+  message: string
+  warnings: string[]
+  rows: Array<[string, string]>
+}
+
+export type MarsbotAuditRecord = {
+  time?: string
+  type?: string
+  phase?: string
+  tool?: string
+  sessionID?: string
+  messageID?: string
+  callID?: string
+  data?: unknown
+}
+
+export type MarsbotAuditInsight = {
+  enabled: boolean
+  path: string | null
+  records: MarsbotAuditRecord[]
+}
+
+export type MarsbotInsights = {
+  directory: string | null
+  config: {
+    path: string | null
+  }
+  sandbox: MarsbotSandboxInsight
+  audit: MarsbotAuditInsight
+}
+
 type PlatformBase = {
   /** App version */
   version?: string
@@ -108,6 +145,9 @@ type PlatformBase = {
 
   /** Record a fatal renderer error in platform logs (desktop only) */
   recordFatalRendererError?(error: FatalRendererErrorLog): Promise<void>
+
+  /** Inspect local MarsbotCode sandbox and audit status for a project (desktop only) */
+  getMarsbotInsights?(directory?: string): Promise<MarsbotInsights>
 }
 
 export type Platform = PlatformBase &
