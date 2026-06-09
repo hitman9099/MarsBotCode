@@ -352,16 +352,15 @@ async function writeManifest(artifacts: Artifact[]) {
 await fs.rm(releaseDir, { recursive: true, force: true })
 await fs.mkdir(releaseDir, { recursive: true })
 
-await run("Typecheck", ["bun", "run", "typecheck"], root, releaseEnv)
+await run("Typecheck", ["bun", "run", "typecheck"], root)
 await run(
   "Stage tests",
   ["bun", "run", "--cwd", "packages/opencode", "test", "test/marsbot/sandbox.test.ts", "test/tool/shell.test.ts"],
   root,
-  releaseEnv,
 )
 
 if (!skipFullOpencodeTest) {
-  await run("Full opencode tests", ["bun", "run", "--cwd", "packages/opencode", "test"], root, releaseEnv)
+  await run("Full opencode tests", ["bun", "run", "--cwd", "packages/opencode", "test"], root)
 }
 
 const cliBuildCommand = [

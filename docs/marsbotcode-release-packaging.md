@@ -16,6 +16,7 @@ bun run release:stage -- --stage sandbox-runtime
 
 - 执行根目录类型检查。
 - 执行当前阶段相关的 `packages/opencode` 测试。
+- 执行验证门禁时不注入 MarsbotCode 品牌环境变量，避免破坏 `opencode` 兼容性测试。
 - 构建当前平台 CLI 二进制。
 - 构建当前平台 Desktop。
 - 优先打包当前平台 Desktop 安装包；Windows 当前环境无法完成安装器时，自动回退为可部署的 `win-unpacked` zip。
