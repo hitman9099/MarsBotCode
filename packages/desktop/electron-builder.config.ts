@@ -25,6 +25,7 @@ const channel = (() => {
   if (raw === "dev" || raw === "beta" || raw === "prod") return raw
   return "dev"
 })()
+const skipWinSignAndEdit = process.env.MARSBOTCODE_SKIP_WIN_SIGN_EDIT === "true"
 
 const getBase = (): Configuration => ({
   artifactName: "marsbotcode-desktop-${os}-${arch}.${ext}",
@@ -59,6 +60,7 @@ const getBase = (): Configuration => ({
   },
   win: {
     icon: `resources/icons/icon.ico`,
+    signAndEditExecutable: skipWinSignAndEdit ? false : undefined,
     signtoolOptions: {
       sign: signWindows,
     },

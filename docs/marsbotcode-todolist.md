@@ -52,7 +52,8 @@
 - [x] Desktop 自动更新默认关闭。
 - [x] Desktop 关键英文文案和部分中文文案改为 MarsbotCode。
 - [ ] Desktop 开发模式启动验证。
-- [ ] Desktop Windows 安装包构建验证。
+- [x] Desktop Windows 可部署 `win-unpacked` zip 构建验证。
+- [ ] Desktop Windows NSIS 安装包构建验证（当前 Windows 会话缺少 symlink 权限，已回退为可部署目录包）。
 - [ ] Desktop macOS dmg/zip 构建验证。
 - [ ] Desktop Linux AppImage/deb/rpm 构建验证。
 - [ ] Desktop 项目选择工作台。
@@ -108,6 +109,9 @@
 - [x] Desktop build 已执行通过。
 - [x] `bun --cwd packages/opencode test` 已在 Windows 环境通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
 - [x] Shell 沙箱运行时 MVP 已验证：沙箱规划、shell metadata 和 `sandbox doctor` 入口均可用。
+- [x] 新增阶段发布脚本 `bun run release:stage -- --stage sandbox-runtime`。
+- [x] 阶段发布 manifest、SHA256SUMS、CLI zip 和 Desktop Windows 可部署 zip 已生成。
+- [x] Windows Desktop installer 失败时可自动回退到 `win-unpacked` zip，并在 manifest 记录 warning。
 - [ ] CI 流程切换为 MarsbotCode 私有化仓库策略。
 - [ ] 移除或调整仍指向 OpenCode 上游发布仓库的自动化流程。
 
