@@ -15,7 +15,9 @@
 - [x] `bun test src/components/marsbot-workbench-summary.test.ts` 已通过：2 pass / 0 fail。
 - [x] `git diff --check` 已通过，仅有 Windows 换行提示。
 - [x] `bun run typecheck` 已通过。
-- [ ] 阶段发布包 `desktop-workbench-overview` 待最终生成。
+- [x] `bun run release:stage -- --stage desktop-workbench-overview` 已通过，生成 `1.16.2-stage.c90f56b` 阶段发布包。
+- [x] CLI 发布包 smoke test 已通过：`bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.c90f56b`。
+- [x] Desktop Windows 可部署 zip 已验证包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
 - [ ] 完整 Agent 聊天工作台仍未完成。
 - [ ] Diff 接受/撤销建议仍未完成。
 - [ ] Desktop 权限审批 UI 仍未完成。

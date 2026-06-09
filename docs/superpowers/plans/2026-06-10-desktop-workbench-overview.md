@@ -127,7 +127,7 @@ bun test src/components/marsbot-workbench-summary.test.ts
 - 修改：`docs/marsbotcode-task-status.md`
 - 修改：`docs/superpowers/plans/2026-06-10-desktop-workbench-overview.md`
 
-- [ ] **Step 1：运行验证**
+- [x] **Step 1：运行验证**
 
 运行：
 
@@ -138,14 +138,14 @@ bun run typecheck
 bun run release:stage -- --stage desktop-workbench-overview
 ```
 
-- [ ] **Step 2：验证发布包**
+- [x] **Step 2：验证发布包**
 
 检查：
 - CLI zip 解压后 `bin\marsbotcode.cmd --version` 输出阶段版本。
 - Desktop zip 包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
 - `manifest.json` 记录阶段名 `desktop-workbench-overview`。
 
-- [ ] **Step 3：更新文档并提交推送**
+- [x] **Step 3：更新文档并提交推送**
 
 提交：
 

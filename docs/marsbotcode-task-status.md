@@ -2,10 +2,10 @@
 
 ## 记录信息
 
-- 记录日期：2026-06-09
+- 记录日期：2026-06-10
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
 - 当前阶段：Desktop 工作台总览 MVP
-- 当前状态：Desktop 工作台总览已接入，阶段发布包待最终生成
+- 当前状态：Desktop 工作台总览已接入，阶段发布包已生成并通过 smoke test
 - TodoList：见 `docs/marsbotcode-todolist.md`
 
 ## 本阶段新增记录：Desktop 工作台总览 MVP
@@ -15,7 +15,14 @@
 - MarsbotCode 状态 popover 新增 `Workbench` 入口，可从当前项目打开工作台总览。
 - 工作台总览支持跳转 Home、新建会话、打开最近会话、打开文件树、切换终端和打开审计日志。
 - 本阶段已验证：`bun test src/components/marsbot-workbench-summary.test.ts`、`git diff --check`、`bun run typecheck`。
-- 阶段发布包 `desktop-workbench-overview` 待最终生成。
+- 阶段发布命令已通过：`bun run release:stage -- --stage desktop-workbench-overview`。
+- 发布版本：`1.16.2-stage.c90f56b`。
+- 发布 manifest：`dist/marsbotcode-stage/desktop-workbench-overview-1.16.2-stage.c90f56b-c90f56b/manifest.json`。
+- CLI 发布包：`dist/marsbotcode-stage/desktop-workbench-overview-1.16.2-stage.c90f56b-c90f56b/cli/marsbotcode-cli-windows-x64-1.16.2-stage.c90f56b.zip`，SHA256 `7bc28278e14c1f23c865f4234bd44fdbd882c08ce9ba8f63ddd82d659412bc44`。
+- Desktop 发布包：`dist/marsbotcode-stage/desktop-workbench-overview-1.16.2-stage.c90f56b-c90f56b/desktop/marsbotcode-desktop-windows-x64-unpacked-1.16.2-stage.c90f56b.zip`，SHA256 `3a3a540c9230be0be4d936367aa80a5a7a05bd21325f0cc08c88f14d9fbaabfd`。
+- 发布包 smoke test 已通过：CLI zip 解压后 `bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.c90f56b`；Desktop zip 包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
+- `packages/opencode` 全量测试已通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
+- Windows NSIS installer 在当前环境仍因 symlink 权限问题 fallback 到 `win-unpacked` zip，manifest 已记录 `WINDOWS_INSTALLER_FALLBACK`。
 - 当前限制：该阶段是工作台总览入口，不替代完整 Agent 聊天、Diff 接受/撤销、权限审批 UI 和真实 Electron 截图验收。
 
 ## 本阶段新增记录：Desktop 审计日志查看器 MVP
