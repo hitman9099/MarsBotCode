@@ -33,7 +33,9 @@
 - [x] `bun test src/main/marsbot-audit.test.ts` 已通过：3 pass / 0 fail。
 - [x] `bun test src/main/marsbot-insights.test.ts` 已通过：3 pass / 0 fail。
 - [x] `bun run typecheck` 已通过。
-- [ ] 阶段发布包 `desktop-audit-viewer` 待最终生成。
+- [x] `bun run release:stage -- --stage desktop-audit-viewer` 已通过，生成 `1.16.2-stage.3d80d4d` 阶段发布包。
+- [x] CLI 发布包 smoke test 已通过：`bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.3d80d4d`。
+- [x] Desktop Windows 可部署 zip 已验证包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
 - [ ] 审计日志导出仍未完成。
 - [ ] 审计日志分页/虚拟滚动仍未完成，当前 MVP 最多读取 200 条。
 - [ ] Desktop 权限审批 UI 仍未完成。
@@ -96,7 +98,7 @@
 - [ ] Desktop 内置终端展示。
 - [ ] Desktop 权限审批 UI。
 - [ ] Desktop 沙箱状态面板。
-- [ ] Desktop 审计日志面板。
+- [x] Desktop 审计日志查看器 MVP。
 - [ ] Desktop 设置中心。
 
 ## 五、沙箱与权限
@@ -125,7 +127,7 @@
 - [x] 权限审批请求和结果写入审计日志。
 - [x] shell 命令和输出摘要写入审计日志。
 - [ ] 文件变更摘要写入审计日志。
-- [ ] Desktop 审计日志查看面板。
+- [x] Desktop 审计日志查看器 MVP。
 - [ ] 审计日志导出。
 
 ## 七、验证与工程化
@@ -133,7 +135,7 @@
 - [x] `git diff --check` 已通过。
 - [x] 核心 JSON 文件解析检查已通过。
 - [x] CLI bin、logo、Desktop 图标资源存在性已检查。
-- [x] 代码已推送到 `hitman9099/MarsBotCode.git` 的 `main` 分支。
+- [x] 代码已推送到 `hitman9099/MarsBotCode.git` 的 `codex/runtime-audit` 分支。
 - [x] Bun `1.3.14` 已安装并验证可用。
 - [x] Windows C++ Build Tools 已安装，`tree-sitter-powershell` 原生依赖可完成安装。
 - [x] `bun install` 已执行通过，并更新 `bun.lock`。

@@ -5,7 +5,7 @@
 - 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
 - 当前阶段：Desktop 审计日志查看器 MVP
-- 当前状态：Desktop 审计日志查看器已接入，阶段发布包待最终生成
+- 当前状态：Desktop 审计日志查看器已接入，阶段发布包已生成并通过 smoke test
 - TodoList：见 `docs/marsbotcode-todolist.md`
 
 ## 本阶段新增记录：Desktop 审计日志查看器 MVP
@@ -15,7 +15,14 @@
 - Electron IPC、preload、desktop renderer 和 app platform 已接入 `getMarsbotAudit(directory, options)`。
 - Desktop 新增 `MarsbotCode Audit` 弹窗，包含搜索、类型过滤、刷新、打开审计目录、统计摘要和记录列表。
 - MarsbotCode 状态 popover 新增 `View audit log` 入口。
-- 本阶段已验证：`bun test src/main/marsbot-audit.test.ts`、`bun test src/main/marsbot-insights.test.ts`、`bun run typecheck`。
+- 本阶段已验证：`bun test src/main/marsbot-audit.test.ts`、`bun test src/main/marsbot-insights.test.ts`、`git diff --check`、`bun run typecheck`。
+- 阶段发布命令已通过：`bun run release:stage -- --stage desktop-audit-viewer`。
+- 发布版本：`1.16.2-stage.3d80d4d`。
+- 发布 manifest：`dist/marsbotcode-stage/desktop-audit-viewer-1.16.2-stage.3d80d4d-3d80d4d/manifest.json`。
+- CLI 发布包：`dist/marsbotcode-stage/desktop-audit-viewer-1.16.2-stage.3d80d4d-3d80d4d/cli/marsbotcode-cli-windows-x64-1.16.2-stage.3d80d4d.zip`，SHA256 `7b80b1acd53f34ff6cd6126ffd8df67cbf63917b4957ca1db8a79cabfe37b4f2`。
+- Desktop 发布包：`dist/marsbotcode-stage/desktop-audit-viewer-1.16.2-stage.3d80d4d-3d80d4d/desktop/marsbotcode-desktop-windows-x64-unpacked-1.16.2-stage.3d80d4d.zip`，SHA256 `8f16c2ff5cc880734ffdcd15170c66f1d3e6eff4f374cf0d717d6bad63b590dc`。
+- 发布包 smoke test 已通过：CLI zip 解压后 `bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.3d80d4d`；Desktop zip 包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
+- Windows NSIS installer 在当前环境仍因 symlink 权限问题 fallback 到 `win-unpacked` zip，manifest 已记录 `WINDOWS_INSTALLER_FALLBACK`。
 - 当前限制：审计日志导出、分页/虚拟滚动、权限审批 UI 和真实 Electron 截图验收仍需后续阶段补充。
 
 ## 本阶段新增记录：Desktop MarsbotCode Insights MVP
@@ -91,7 +98,7 @@
 
 ## 未完成事项
 
-- Desktop 内的审计日志、沙箱状态和权限策略专用面板尚未完成。
+- Desktop 内的审计日志查看器 MVP 已完成；沙箱状态和权限审批专用面板尚未完成。
 - 文件变更摘要的专用审计字段尚未完成，当前通过工具输出 metadata 记录部分摘要。
 - OS 模式尚不能执行按域名的网络允许/拒绝规则；当前仅输出明确风险提示。
 - Windows 尚无强 OS 隔离，当前为弱沙箱提示模式；强隔离需要后续 WSL、Docker 或微虚拟机方案。

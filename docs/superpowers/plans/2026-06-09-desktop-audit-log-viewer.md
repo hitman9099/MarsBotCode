@@ -167,7 +167,7 @@ void import("./dialog-marsbot-audit").then((x) => {
 
 记录 Desktop Audit Log Viewer MVP 已完成、仍缺少导出/分页/权限审批 UI。
 
-- [ ] **Step 2：运行验证**
+- [x] **Step 2：运行验证**
 
 运行：
 
@@ -179,7 +179,7 @@ bun run typecheck
 bun run release:stage -- --stage desktop-audit-viewer
 ```
 
-- [ ] **Step 3：提交并推送**
+- [x] **Step 3：提交并推送**
 
 提交：
 
