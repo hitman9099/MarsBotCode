@@ -117,6 +117,7 @@ const api: ElectronAPI = {
   exportDebugLogs: () => ipcRenderer.invoke("export-debug-logs"),
   recordFatalRendererError: (error) => ipcRenderer.invoke("record-fatal-renderer-error", error),
   getMarsbotInsights: (directory) => ipcRenderer.invoke("get-marsbot-insights", directory),
+  getMarsbotAudit: (directory, options) => ipcRenderer.invoke("get-marsbot-audit", directory, options),
 }
 
 contextBridge.exposeInMainWorld("api", api)

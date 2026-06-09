@@ -181,6 +181,7 @@ function MarsbotCodePanel(props: {
   loading: () => boolean
   onOpenAudit: (path: string) => void
   onRefresh: () => void
+  onViewAudit: () => void
 }) {
   const records = createMemo(() => props.insights()?.audit.records.slice(0, 5) ?? [])
 
@@ -257,6 +258,15 @@ function MarsbotCodePanel(props: {
                           onClick={() => props.onOpenAudit(auditPath())}
                         >
                           Open audit dir
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="small"
+                          icon="review"
+                          class="h-7 px-2 mt-1 ml-1 self-start"
+                          onClick={props.onViewAudit}
+                        >
+                          View audit log
                         </Button>
                       </>
                     )}
@@ -478,6 +488,14 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
   const openMarsbotAudit = (auditPath: string) => {
     if (!platform.openPath) return
     void platform.openPath(auditPath).catch(fail)
+  }
+  const viewMarsbotAudit = () => {
+    const directory = projectDirectory()
+    const run = ++dialogRun
+    void import("./dialog-marsbot-audit").then((x) => {
+      if (dialogDead || dialogRun !== run) return
+      dialog.show(() => <x.DialogMarsbotAudit directory={directory} />)
+    })
   }
 
   return (
@@ -702,6 +720,7 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
               loading={() => marsbotInsights.loading}
               onOpenAudit={openMarsbotAudit}
               onRefresh={() => setMarsbotRefresh((value) => value + 1)}
+              onViewAudit={viewMarsbotAudit}
             />
           </Tabs.Content>
         </Show>

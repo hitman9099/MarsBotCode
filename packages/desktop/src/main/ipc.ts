@@ -13,6 +13,7 @@ import { getPinchZoomEnabled, setPinchZoomEnabled, setTitlebar, updateTitlebar }
 import type { UpdaterController } from "./updater-controller"
 import { createUpdaterSubscriptions } from "./updater-subscriptions"
 import { readMarsbotInsights } from "./marsbot-insights"
+import { readMarsbotAudit, type MarsbotAuditReadOptions } from "./marsbot-audit"
 
 const pickerFilters = (ext?: string[]) => {
   if (!ext || ext.length === 0) return undefined
@@ -79,6 +80,11 @@ export function registerIpcHandlers(deps: Deps) {
   )
   ipcMain.handle("get-marsbot-insights", (_event: IpcMainInvokeEvent, directory?: string) =>
     readMarsbotInsights(typeof directory === "string" ? directory : undefined),
+  )
+  ipcMain.handle(
+    "get-marsbot-audit",
+    (_event: IpcMainInvokeEvent, directory?: string, options?: MarsbotAuditReadOptions) =>
+      readMarsbotAudit(typeof directory === "string" ? directory : undefined, options),
   )
   ipcMain.handle("store-get", (_event: IpcMainInvokeEvent, name: string, key: string) => {
     try {

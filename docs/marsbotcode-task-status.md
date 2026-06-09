@@ -4,9 +4,19 @@
 
 - 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
-- 当前阶段：Desktop MarsbotCode Insights MVP
-- 当前状态：Desktop 状态 popover 已接入 MarsbotCode 沙箱与审计摘要；阶段发布包已生成并完成 smoke test
+- 当前阶段：Desktop 审计日志查看器 MVP
+- 当前状态：Desktop 审计日志查看器已接入，阶段发布包待最终生成
 - TodoList：见 `docs/marsbotcode-todolist.md`
+
+## 本阶段新增记录：Desktop 审计日志查看器 MVP
+
+- Desktop main 进程新增 `readMarsbotAudit(directory, options)` 只读模块，可读取 MarsbotCode 配置中的 `audit.path`。
+- 审计日志读取支持 JSONL 坏行计数、最近记录排序、`query` 搜索、`type` 过滤、`tool` 过滤和 `limit`。
+- Electron IPC、preload、desktop renderer 和 app platform 已接入 `getMarsbotAudit(directory, options)`。
+- Desktop 新增 `MarsbotCode Audit` 弹窗，包含搜索、类型过滤、刷新、打开审计目录、统计摘要和记录列表。
+- MarsbotCode 状态 popover 新增 `View audit log` 入口。
+- 本阶段已验证：`bun test src/main/marsbot-audit.test.ts`、`bun test src/main/marsbot-insights.test.ts`、`bun run typecheck`。
+- 当前限制：审计日志导出、分页/虚拟滚动、权限审批 UI 和真实 Electron 截图验收仍需后续阶段补充。
 
 ## 本阶段新增记录：Desktop MarsbotCode Insights MVP
 

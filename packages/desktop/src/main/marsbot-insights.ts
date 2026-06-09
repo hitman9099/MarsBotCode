@@ -11,12 +11,12 @@ type SandboxConfig = {
   deniedDomains?: string[]
 }
 
-type AuditConfig = {
+export type AuditConfig = {
   enabled?: boolean
   path?: string
 }
 
-type MarsbotConfig = {
+export type MarsbotConfig = {
   sandbox?: SandboxConfig
   audit?: AuditConfig
 }
@@ -64,7 +64,7 @@ type ReadOptions = {
   commandExists?: (command: string, args?: string[]) => boolean
 }
 
-const DEFAULT_AUDIT_PATH = ".marsbot/audit"
+export const DEFAULT_AUDIT_PATH = ".marsbot/audit"
 const CONFIG_FILES = [
   "marsbotcode.jsonc",
   "marsbotcode.json",
@@ -120,7 +120,7 @@ function normalizeConfig(input: unknown): MarsbotConfig {
   }
 }
 
-async function readConfig(directory: string): Promise<{ path: string | null; config: MarsbotConfig }> {
+export async function readMarsbotConfig(directory: string): Promise<{ path: string | null; config: MarsbotConfig }> {
   for (const file of CONFIG_FILES) {
     const full = path.join(directory, file)
     try {
@@ -139,7 +139,7 @@ async function readConfig(directory: string): Promise<{ path: string | null; con
   }
 }
 
-function resolveProjectPath(directory: string, value: string) {
+export function resolveMarsbotProjectPath(directory: string, value: string) {
   const expanded =
     value === "~"
       ? homedir()
@@ -275,7 +275,7 @@ async function auditRecords(dir: string, limit: number) {
 
 async function auditInsight(directory: string, config: AuditConfig | undefined, limit: number): Promise<MarsbotAuditInsight> {
   const enabled = config?.enabled === true
-  const auditPath = resolveProjectPath(directory, config?.path?.trim() || DEFAULT_AUDIT_PATH)
+  const auditPath = resolveMarsbotProjectPath(directory, config?.path?.trim() || DEFAULT_AUDIT_PATH)
   if (!enabled) return { enabled, path: auditPath, records: [] }
   return {
     enabled,
@@ -305,7 +305,7 @@ export async function readMarsbotInsights(
     }
   }
 
-  const { config, path: configPath } = await readConfig(directory)
+  const { config, path: configPath } = await readMarsbotConfig(directory)
   const platform = options.platform ?? process.platform
   const exists = options.commandExists ?? commandExists
   return {

@@ -23,6 +23,21 @@
 - [ ] Desktop 权限审批 UI 仍未完成。
 - [ ] Desktop 沙箱/审计面板的真实 Electron 截图验收仍需在后续桌面试点环境补充。
 
+## 本阶段：Desktop 审计日志查看器 MVP（2026-06-09）
+
+- [x] Desktop main 进程新增 `readMarsbotAudit(directory, options)` 只读模块。
+- [x] 审计日志读取支持 `audit.path`、JSONC 配置、坏 JSONL 行计数、`query` 搜索、`type` 过滤、`tool` 过滤和 `limit`。
+- [x] 新增 `getMarsbotAudit(directory, options)` Electron IPC、preload、desktop renderer 和 app platform 可选方法。
+- [x] Desktop 新增 `MarsbotCode Audit` 弹窗，支持搜索、类型过滤、刷新、打开审计目录、统计摘要和记录列表。
+- [x] MarsbotCode 状态 popover 新增 `View audit log` 入口。
+- [x] `bun test src/main/marsbot-audit.test.ts` 已通过：3 pass / 0 fail。
+- [x] `bun test src/main/marsbot-insights.test.ts` 已通过：3 pass / 0 fail。
+- [x] `bun run typecheck` 已通过。
+- [ ] 阶段发布包 `desktop-audit-viewer` 待最终生成。
+- [ ] 审计日志导出仍未完成。
+- [ ] 审计日志分页/虚拟滚动仍未完成，当前 MVP 最多读取 200 条。
+- [ ] Desktop 权限审批 UI 仍未完成。
+
 ## 一、基础代码与品牌化
 
 - [x] 从 OpenCode `dev` 分支建立 MarsbotCode 代码基座。

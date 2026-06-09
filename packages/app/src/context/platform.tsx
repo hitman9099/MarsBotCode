@@ -55,6 +55,32 @@ export type MarsbotAuditInsight = {
   records: MarsbotAuditRecord[]
 }
 
+export type MarsbotAuditReadOptions = {
+  limit?: number
+  query?: string
+  type?: string
+  tool?: string
+}
+
+export type MarsbotAuditLogRecord = MarsbotAuditRecord & {
+  title: string
+  summary: string
+  source: {
+    file: string
+    line: number
+  }
+}
+
+export type MarsbotAuditLog = {
+  directory: string | null
+  enabled: boolean
+  path: string | null
+  total: number
+  returned: number
+  skipped: number
+  records: MarsbotAuditLogRecord[]
+}
+
 export type MarsbotInsights = {
   directory: string | null
   config: {
@@ -148,6 +174,9 @@ type PlatformBase = {
 
   /** Inspect local MarsbotCode sandbox and audit status for a project (desktop only) */
   getMarsbotInsights?(directory?: string): Promise<MarsbotInsights>
+
+  /** Read local MarsbotCode audit records for a project (desktop only) */
+  getMarsbotAudit?(directory?: string, options?: MarsbotAuditReadOptions): Promise<MarsbotAuditLog>
 }
 
 export type Platform = PlatformBase &

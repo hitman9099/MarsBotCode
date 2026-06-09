@@ -200,6 +200,8 @@ const createPlatform = (): Platform => {
 
     getMarsbotInsights: (directory) => window.api.getMarsbotInsights(directory),
 
+    getMarsbotAudit: (directory, options) => window.api.getMarsbotAudit(directory, options),
+
     restart: async () => {
       await window.api.killSidecar().catch(() => undefined)
       window.api.relaunch()
