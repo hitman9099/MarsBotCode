@@ -60,7 +60,7 @@ bun --cwd packages/desktop package:win
 
 记录阶段发布命令、产物目录、manifest 字段、Windows/macOS/Linux 限制。
 
-- [ ] **Step 2: 跑完整阶段发布**
+- [x] **Step 2: 跑完整阶段发布**
 
 运行：
 
@@ -76,7 +76,7 @@ dist/marsbotcode-stage/sandbox-runtime-<version>-<sha>/
 
 目录内包含 CLI zip、Desktop installer、manifest 和 checksum。
 
-- [ ] **Step 3: 提交并推送**
+- [x] **Step 3: 提交并推送**
 
 ```bash
 git add package.json script/marsbot-stage-release.ts packages/desktop/scripts/copy-metainfo.ts docs

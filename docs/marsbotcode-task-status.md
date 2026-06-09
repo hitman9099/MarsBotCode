@@ -5,7 +5,7 @@
 - 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
 - 当前阶段：阶段发布打包流水线 MVP
-- 当前状态：Shell 沙箱运行时 MVP 已完成并推送；当前阶段已新增阶段发布脚本，可生成测试验证记录、CLI zip、Desktop Windows 可部署 zip、manifest 和 SHA256SUMS
+- 当前状态：Shell 沙箱运行时 MVP 已完成并推送；阶段发布打包流水线已完成，可生成测试验证记录、CLI zip、Desktop Windows 可部署 zip、manifest 和 SHA256SUMS
 - TodoList：见 `docs/marsbotcode-todolist.md`
 
 ## 已完成事项
@@ -56,8 +56,11 @@
 - `bun --cwd packages/opencode test` 已执行通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
 - `bun test test/marsbot/sandbox.test.ts test/tool/shell.test.ts` 已执行通过：`72 pass / 0 fail`。
 - `bun --conditions=browser ./src/index.ts sandbox doctor` 已执行通过，并正确展示 Windows 弱沙箱、启用配置和网络域名限制提示。
-- `bun run release:stage -- --stage sandbox-runtime --skip-full-opencode-test` 已执行通过，生成 CLI zip、Desktop `win-unpacked` zip、`manifest.json` 和 `SHA256SUMS.txt`。
+- `bun run release:stage -- --stage sandbox-runtime` 已执行通过，包含 `bun run typecheck`、阶段相关测试、`packages/opencode` 全量测试、CLI 构建、Desktop 构建和发布包生成。
+- `packages/opencode` 全量测试已通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
+- 阶段发布已生成 CLI zip、Desktop `win-unpacked` zip、`manifest.json` 和 `SHA256SUMS.txt`。
 - Desktop `win-unpacked` fallback 已校验存在 `.exe` 和 `resources/app.asar` 后再进入发布包。
+- CLI zip 已完成 smoke test：解压后运行 `bin\marsbotcode.cmd --version` 可输出阶段版本号。
 
 ## 未完成事项
 
@@ -71,6 +74,6 @@
 
 ## 下一步建议
 
-- 提交阶段发布打包流水线，并在提交后运行完整阶段发布命令生成对应 commit 的发布包。
 - 在具备 Windows symlink 权限或预置 `winCodeSign` 缓存的环境中补充 NSIS installer 验收。
 - 完成 Desktop Beta 工作台里的沙箱状态、审计日志和权限审批可视化。
+- 进入下一个阶段：Desktop Beta 工作台的项目选择、会话管理、审计日志和沙箱状态可视化。

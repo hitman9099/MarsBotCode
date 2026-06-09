@@ -110,6 +110,7 @@
 - [x] `bun --cwd packages/opencode test` 已在 Windows 环境通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
 - [x] Shell 沙箱运行时 MVP 已验证：沙箱规划、shell metadata 和 `sandbox doctor` 入口均可用。
 - [x] 新增阶段发布脚本 `bun run release:stage -- --stage sandbox-runtime`。
+- [x] 完整阶段发布命令已通过，包含全量 `packages/opencode` 测试和本机发布包生成。
 - [x] 阶段发布 manifest、SHA256SUMS、CLI zip 和 Desktop Windows 可部署 zip 已生成。
 - [x] Windows Desktop installer 失败时可自动回退到 `win-unpacked` zip，并在 manifest 记录 warning。
 - [ ] CI 流程切换为 MarsbotCode 私有化仓库策略。
