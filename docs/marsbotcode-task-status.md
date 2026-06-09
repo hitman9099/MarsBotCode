@@ -4,9 +4,19 @@
 
 - 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
-- 当前阶段：Desktop 审计日志查看器 MVP
-- 当前状态：Desktop 审计日志查看器已接入，阶段发布包已生成并通过 smoke test
+- 当前阶段：Desktop 工作台总览 MVP
+- 当前状态：Desktop 工作台总览已接入，阶段发布包待最终生成
 - TodoList：见 `docs/marsbotcode-todolist.md`
+
+## 本阶段新增记录：Desktop 工作台总览 MVP
+
+- App 层新增 `buildMarsbotWorkbenchSummary(input)` 纯逻辑模块，用于聚合项目、会话、文件树、终端、沙箱和审计状态。
+- Desktop 新增 `MarsbotCode Workbench` 弹窗，包含项目摘要、状态指标、模块就绪状态、最近会话列表和关键入口按钮。
+- MarsbotCode 状态 popover 新增 `Workbench` 入口，可从当前项目打开工作台总览。
+- 工作台总览支持跳转 Home、新建会话、打开最近会话、打开文件树、切换终端和打开审计日志。
+- 本阶段已验证：`bun test src/components/marsbot-workbench-summary.test.ts`、`git diff --check`、`bun run typecheck`。
+- 阶段发布包 `desktop-workbench-overview` 待最终生成。
+- 当前限制：该阶段是工作台总览入口，不替代完整 Agent 聊天、Diff 接受/撤销、权限审批 UI 和真实 Electron 截图验收。
 
 ## 本阶段新增记录：Desktop 审计日志查看器 MVP
 

@@ -24,9 +24,11 @@ import { ServerConnection, useServer } from "@/context/server"
 import { useSync } from "@/context/sync"
 import { type ServerHealth } from "@/utils/server-health"
 import { useGlobal } from "@/context/global"
+import { useLayout } from "@/context/layout"
 import { useSettings } from "@/context/settings"
 import { useMcpToggle } from "@/context/mcp"
 import { decode64 } from "@/utils/base64"
+import { SessionRouteKey, SessionStateKey } from "@/utils/server-scope"
 
 const pluginEmptyMessage = (value: string, file: string): JSXElement => {
   const parts = value.split(file)
@@ -182,6 +184,7 @@ function MarsbotCodePanel(props: {
   onOpenAudit: (path: string) => void
   onRefresh: () => void
   onViewAudit: () => void
+  onViewWorkbench: () => void
 }) {
   const records = createMemo(() => props.insights()?.audit.records.slice(0, 5) ?? [])
 
@@ -212,6 +215,9 @@ function MarsbotCodePanel(props: {
                     </div>
                   </div>
                   <div class="flex items-center gap-1 shrink-0">
+                    <Button variant="secondary" size="small" icon="status" class="h-7 px-2" onClick={props.onViewWorkbench}>
+                      Workbench
+                    </Button>
                     <Button variant="ghost" size="small" icon="reset" class="h-7 px-2" onClick={props.onRefresh}>
                       Refresh
                     </Button>
@@ -438,6 +444,7 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
   const platform = usePlatform()
   const dialog = useDialog()
   const language = useLanguage()
+  const layout = useLayout()
   const navigate = useNavigate()
   const params = useParams()
   const settings = useSettings()
@@ -485,6 +492,20 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
     }
   })
   const [marsbotInsights] = createResource(marsbotSource, (source) => platform.getMarsbotInsights!(source.directory))
+  const marsbotSessions = createMemo(() =>
+    (sync.data.session ?? [])
+      .filter((session) => !session.parentID && !session.time?.archived)
+      .map((session) => ({
+        id: session.id,
+        title: session.title,
+        updated: session.time?.updated,
+        created: session.time?.created,
+      })),
+  )
+  const sessionStateKey = createMemo(() =>
+    SessionStateKey.from(server.scope(), SessionRouteKey.fromRoute(params.dir, params.id)),
+  )
+  const sessionView = createMemo(() => layout.view(sessionStateKey))
   const openMarsbotAudit = (auditPath: string) => {
     if (!platform.openPath) return
     void platform.openPath(auditPath).catch(fail)
@@ -495,6 +516,35 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
     void import("./dialog-marsbot-audit").then((x) => {
       if (dialogDead || dialogRun !== run) return
       dialog.show(() => <x.DialogMarsbotAudit directory={directory} />)
+    })
+  }
+  const viewMarsbotWorkbench = () => {
+    const directory = projectDirectory()
+    const run = ++dialogRun
+    void import("./dialog-marsbot-workbench").then((x) => {
+      if (dialogDead || dialogRun !== run) return
+      dialog.show(() => (
+        <x.DialogMarsbotWorkbench
+          directory={directory}
+          activeSessionID={params.id}
+          sessions={marsbotSessions()}
+          fileTreeOpen={layout.fileTree.opened()}
+          terminalOpen={sessionView().terminal.opened()}
+          insights={marsbotInsights.latest}
+          onOpenHome={() => navigate("/")}
+          onNewSession={() => {
+            if (!params.dir) return
+            navigate(`/${params.dir}/session`)
+          }}
+          onOpenSession={(id) => {
+            if (!params.dir) return
+            navigate(`/${params.dir}/session/${id}`)
+          }}
+          onOpenFileTree={() => layout.fileTree.open()}
+          onToggleTerminal={() => sessionView().terminal.toggle()}
+          onViewAudit={viewMarsbotAudit}
+        />
+      ))
     })
   }
 
@@ -721,6 +771,7 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
               onOpenAudit={openMarsbotAudit}
               onRefresh={() => setMarsbotRefresh((value) => value + 1)}
               onViewAudit={viewMarsbotAudit}
+              onViewWorkbench={viewMarsbotWorkbench}
             />
           </Tabs.Content>
         </Show>

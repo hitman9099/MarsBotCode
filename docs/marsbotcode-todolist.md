@@ -6,6 +6,20 @@
 - `[ ]`：尚未完成，需要后续开发或验证。
 - `阻塞`：当前受环境、依赖或外部条件限制，暂时无法完成。
 
+## 本阶段：Desktop 工作台总览 MVP（2026-06-10）
+
+- [x] 新增 `buildMarsbotWorkbenchSummary(input)` 纯逻辑模块，聚合项目、会话、文件树、终端、沙箱和审计状态。
+- [x] 新增 `MarsbotCode Workbench` 弹窗，展示项目摘要、指标、模块状态和最近会话。
+- [x] MarsbotCode 状态 popover 新增 `Workbench` 入口。
+- [x] 工作台总览支持跳转 Home、新建会话、打开最近会话、打开文件树、切换终端和打开审计日志。
+- [x] `bun test src/components/marsbot-workbench-summary.test.ts` 已通过：2 pass / 0 fail。
+- [x] `git diff --check` 已通过，仅有 Windows 换行提示。
+- [x] `bun run typecheck` 已通过。
+- [ ] 阶段发布包 `desktop-workbench-overview` 待最终生成。
+- [ ] 完整 Agent 聊天工作台仍未完成。
+- [ ] Diff 接受/撤销建议仍未完成。
+- [ ] Desktop 权限审批 UI 仍未完成。
+
 ## 本阶段：Desktop MarsbotCode Insights MVP（2026-06-09）
 
 - [x] Desktop main 进程新增 MarsbotCode insights 只读模块，可读取项目 `marsbotcode.json/jsonc`、`.marsbotcode` 配置和 `.marsbot/audit` JSONL。
@@ -90,12 +104,13 @@
 - [ ] Desktop Windows NSIS 安装包构建验证（当前 Windows 会话缺少 symlink 权限，已回退为可部署目录包）。
 - [ ] Desktop macOS dmg/zip 构建验证。
 - [ ] Desktop Linux AppImage/deb/rpm 构建验证。
-- [ ] Desktop 项目选择工作台。
+- [x] Desktop 工作台总览入口。
+- [x] Desktop 项目选择入口已复用 Home/Open Project。
 - [ ] Desktop Agent 聊天工作台。
-- [ ] Desktop 会话管理工作台。
-- [ ] Desktop 文件树工作台。
+- [x] Desktop 会话管理入口已接入工作台总览和 Home 最近会话。
+- [x] Desktop 文件树入口已接入工作台总览。
 - [ ] Desktop Diff 查看和接受/撤销建议。
-- [ ] Desktop 内置终端展示。
+- [x] Desktop 内置终端入口已接入工作台总览。
 - [ ] Desktop 权限审批 UI。
 - [ ] Desktop 沙箱状态面板。
 - [x] Desktop 审计日志查看器 MVP。
