@@ -5,7 +5,7 @@
 - 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
 - 当前阶段：Desktop MarsbotCode Insights MVP
-- 当前状态：Desktop 状态 popover 已接入 MarsbotCode 沙箱与审计摘要；阶段发布包待最终生成
+- 当前状态：Desktop 状态 popover 已接入 MarsbotCode 沙箱与审计摘要；阶段发布包已生成并完成 smoke test
 - TodoList：见 `docs/marsbotcode-todolist.md`
 
 ## 本阶段新增记录：Desktop MarsbotCode Insights MVP
@@ -16,6 +16,13 @@
 - Electron IPC、preload、desktop renderer 和 app platform 已接入 `getMarsbotInsights(directory)`。
 - Desktop 状态 popover 新增 `MarsbotCode` 标签页，展示沙箱状态、配置来源、warning、审计启用状态、审计目录和最近 5 条审计记录。
 - 本阶段已验证：`bun test src/main/marsbot-insights.test.ts`、`git diff --check`、`bun run typecheck`。
+- 阶段发布命令已通过：`bun run release:stage -- --stage desktop-insights`。
+- 发布版本：`1.16.2-stage.cc0cd9f`。
+- 发布 manifest：`dist/marsbotcode-stage/desktop-insights-1.16.2-stage.cc0cd9f-cc0cd9f/manifest.json`。
+- CLI 发布包：`dist/marsbotcode-stage/desktop-insights-1.16.2-stage.cc0cd9f-cc0cd9f/cli/marsbotcode-cli-windows-x64-1.16.2-stage.cc0cd9f.zip`，SHA256 `1e72d5abd2d0516a744cd31075802081a2043a246c720c3a876ae0c12ae3ebd0`。
+- Desktop 发布包：`dist/marsbotcode-stage/desktop-insights-1.16.2-stage.cc0cd9f-cc0cd9f/desktop/marsbotcode-desktop-windows-x64-unpacked-1.16.2-stage.cc0cd9f.zip`，SHA256 `7107af5d45a731835a70a24283874e9797cb3a54a43dbf48327cfcb390a0d8fe`。
+- 发布包 smoke test 已通过：CLI zip 解压后 `bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.cc0cd9f`；Desktop zip 包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
+- Windows NSIS installer 在当前环境仍因 symlink 权限问题 fallback 到 `win-unpacked` zip，manifest 已记录 `WINDOWS_INSTALLER_FALLBACK`。
 - 当前限制：完整审计日志面板、权限审批 UI、分页/搜索/导出和真实 Electron 截图验收仍需后续阶段补充。
 
 ## 已完成事项

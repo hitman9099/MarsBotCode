@@ -129,7 +129,7 @@ Expected: PASS.
 
 记录 Desktop MarsbotCode insights 阶段完成和剩余限制。
 
-- [ ] **Step 2: 验证**
+- [x] **Step 2: 验证**
 
 Run:
 
@@ -140,7 +140,7 @@ bun run typecheck
 bun run release:stage -- --stage desktop-insights
 ```
 
-- [ ] **Step 3: 提交推送**
+- [x] **Step 3: 提交推送**
 
 Commit:
 

@@ -16,6 +16,9 @@
 - [x] `bun test src/main/marsbot-insights.test.ts` 已通过：3 pass / 0 fail。
 - [x] `git diff --check` 已通过，仅有 Windows 换行提示。
 - [x] `bun run typecheck` 已通过。
+- [x] `bun run release:stage -- --stage desktop-insights` 已通过，生成 `1.16.2-stage.cc0cd9f` 阶段发布包。
+- [x] CLI 发布包 smoke test 已通过：`bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.cc0cd9f`。
+- [x] Desktop Windows 可部署 zip 已验证包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
 - [ ] 完整 Desktop 审计日志面板、分页、搜索和导出仍未完成。
 - [ ] Desktop 权限审批 UI 仍未完成。
 - [ ] Desktop 沙箱/审计面板的真实 Electron 截图验收仍需在后续桌面试点环境补充。
