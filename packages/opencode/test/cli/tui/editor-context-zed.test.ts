@@ -5,6 +5,9 @@ import path from "node:path"
 import { afterEach, expect, spyOn, test } from "bun:test"
 import { isZedTerminal, offsetToPosition, resolveZedDbPath, resolveZedSelection } from "@opencode-ai/tui/editor-zed"
 import { tmpdir } from "../../fixture/fixture"
+import { canCreateSymlink } from "../../lib/symlink"
+
+const symlinkTest = (await canCreateSymlink()) ? test : test.skip
 
 const originalZedTerm = process.env.ZED_TERM
 const originalTermProgram = process.env.TERM_PROGRAM
@@ -78,7 +81,7 @@ test("offsetToPosition converts Zed offsets to 1-based editor positions", () => 
   })
 })
 
-test("resolveZedDbPath skips candidates that cannot be stated", async () => {
+symlinkTest("resolveZedDbPath skips candidates that cannot be stated", async () => {
   await using tmp = await tmpdir()
   const loop = path.join(tmp.path, "loop")
   await symlink(loop, loop)

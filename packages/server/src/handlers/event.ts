@@ -21,14 +21,24 @@ export const EventHandler = HttpApiBuilder.group(Api, "server.event", (handlers)
     return handlers.handleRaw("event.subscribe", () =>
       Effect.gen(function* () {
         const location = yield* Location.Service
+        const outputLocation = (ref?: Location.Ref) =>
+          new Location.Info({
+            directory: ref?.directory ?? location.directory,
+            workspaceID: ref?.workspaceID ?? location.workspaceID,
+            project: location.project,
+          })
+        const outputEvent = (event: EventV2.Payload) => ({
+          id: event.id,
+          type: event.type,
+          location: outputLocation(event.location),
+          ...(event.metadata ? { metadata: event.metadata } : {}),
+          ...(event.version === undefined ? {} : { version: event.version }),
+          data: event.data,
+        })
         const connected = {
           id: EventV2.ID.create(),
           type: "server.connected",
-          location: new Location.Info({
-            directory: location.directory,
-            workspaceID: location.workspaceID,
-            project: location.project,
-          }),
+          location: outputLocation(),
           data: {},
         }
         return HttpServerResponse.stream(
@@ -42,6 +52,7 @@ export const EventHandler = HttpApiBuilder.group(Api, "server.event", (handlers)
                       event.location?.directory === location.directory &&
                       event.location.workspaceID === location.workspaceID,
                   ),
+                  Stream.map(outputEvent),
                 ),
             ),
             Stream.map(eventData),

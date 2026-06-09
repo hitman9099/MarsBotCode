@@ -58,6 +58,8 @@ export async function killTree(proc: ChildProcess, opts?: { exited?: () => boole
 
 function full(file: string) {
   if (process.platform !== "win32") return file
+  const posix = file.replaceAll("\\", "/").toLowerCase().replace(/\.exe$/, "")
+  if (posix === "/usr/bin/bash" || posix === "/bin/bash") return gitbash() || file
   const shell = Filesystem.windowsPath(file)
   if (path.win32.dirname(shell) !== ".") {
     if (shell.startsWith("/") && name(shell) === "bash") return gitbash() || shell

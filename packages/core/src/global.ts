@@ -6,7 +6,10 @@ import { Context, Effect, Layer } from "effect"
 import { Flock } from "./util/flock"
 import { Flag } from "./flag/flag"
 
-const app = "marsbotcode"
+const app =
+  process.env.OPENCODE_BRAND === "marsbotcode" || process.env.MARSBOTCODE === "1" || process.env.MARSBOTCODE_DESKTOP === "1"
+    ? "marsbotcode"
+    : "opencode"
 const data = path.join(xdgData!, app)
 const cache = path.join(xdgCache!, app)
 const config = path.join(xdgConfig!, app)

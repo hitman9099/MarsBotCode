@@ -106,7 +106,7 @@
 - [x] `bun install` 已执行通过，并更新 `bun.lock`。
 - [x] `bun run typecheck` 已执行通过。
 - [x] Desktop build 已执行通过。
-- [ ] `bun --cwd packages/opencode test` 已可运行，但当前 Windows 环境仍有 30 个失败项，需要后续兼容性修复。
+- [x] `bun --cwd packages/opencode test` 已在 Windows 环境通过：`2956 pass / 58 skip / 1 todo / 0 fail`。
 - [ ] CI 流程切换为 MarsbotCode 私有化仓库策略。
 - [ ] 移除或调整仍指向 OpenCode 上游发布仓库的自动化流程。
 

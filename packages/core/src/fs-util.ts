@@ -1,6 +1,6 @@
 import { NodeFileSystem } from "@effect/platform-node"
 import { dirname, isAbsolute, join, relative, resolve as pathResolve, sep } from "path"
-import { realpathSync } from "fs"
+import { existsSync, realpathSync } from "fs"
 import * as NFS from "fs/promises"
 import { lookup } from "mime-types"
 import { Context, Effect, FileSystem, Layer, Schema } from "effect"
@@ -231,11 +231,24 @@ export namespace FSUtil {
 
   export function windowsPath(p: string): string {
     if (process.platform !== "win32") return p
-    return p
+    const converted = p
       .replace(/^\/([a-zA-Z]):(?:[\\/]|$)/, (_, drive) => `${drive.toUpperCase()}:/`)
       .replace(/^\/([a-zA-Z])(?:\/|$)/, (_, drive) => `${drive.toUpperCase()}:/`)
       .replace(/^\/cygdrive\/([a-zA-Z])(?:\/|$)/, (_, drive) => `${drive.toUpperCase()}:/`)
       .replace(/^\/mnt\/([a-zA-Z])(?:\/|$)/, (_, drive) => `${drive.toUpperCase()}:/`)
+    if (converted !== p) return converted
+
+    if (!/^[\\/][^\\/]/.test(p)) return p
+
+    const suffix = p.replaceAll("\\", "/")
+    const drives = [process.env.SystemDrive, process.env.HOMEDRIVE, pathResolve(".").slice(0, 2)]
+      .filter((drive): drive is string => /^[A-Za-z]:$/.test(drive ?? ""))
+      .map((drive) => drive.toUpperCase())
+    for (const drive of [...new Set(drives)]) {
+      const candidate = drive + suffix
+      if (existsSync(candidate)) return candidate
+    }
+    return drives[0] ? drives[0] + suffix : p
   }
 
   export function overlaps(a: string, b: string) {

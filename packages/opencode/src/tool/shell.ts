@@ -366,7 +366,7 @@ export const ShellTool = Tool.define(
 
     const resolvePath = Effect.fn("ShellTool.resolvePath")(function* (text: string, root: string, shell: string) {
       if (process.platform === "win32") {
-        if (Shell.posix(shell) && text.startsWith("/") && FSUtil.windowsPath(text) === text) {
+        if (Shell.posix(shell) && /^\/tmp(?:\/|$)/i.test(text)) {
           const file = yield* cygpath(shell, text)
           if (file) return file
         }
@@ -595,15 +595,17 @@ export const ShellTool = Tool.define(
       if (meta.length > 0) {
         output += "\n\n<shell_metadata>\n" + meta.join("\n") + "\n</shell_metadata>"
       }
+      const metadata = {
+        output: last || preview(output),
+        exit: code,
+        description: input.description,
+        truncated: cut,
+        ...(cut && file ? { outputPath: file } : {}),
+      }
+      yield* ctx.metadata({ metadata })
       return {
         title: input.description,
-        metadata: {
-          output: last || preview(output),
-          exit: code,
-          description: input.description,
-          truncated: cut,
-          ...(cut && file ? { outputPath: file } : {}),
-        },
+        metadata,
         output,
       }
     })

@@ -2,10 +2,10 @@
 
 ## 记录信息
 
-- 记录日期：2026-06-08
+- 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
 - 当前阶段：阻塞项解除与本地验证
-- 当前状态：Bun、Windows C++ Build Tools、依赖安装、类型检查和 Desktop build 阻塞已解除；全量测试仍有 30 个 Windows 兼容性失败项待修复
+- 当前状态：Bun、Windows C++ Build Tools、依赖安装、类型检查、Desktop build 和 `packages/opencode` Windows 全量测试阻塞均已解除
 - TodoList：见 `docs/marsbotcode-todolist.md`
 
 ## 已完成事项
@@ -27,6 +27,11 @@
 - Windows C++ Build Tools 已安装，原生依赖 `tree-sitter-powershell` 可完成编译安装。
 - Windows 下因 Git symlink 检出策略导致的 `custom-elements.d.ts` 类型检查阻塞已处理。
 - `opencode` 入口下的 `serve` 帮助文案保持 OpenCode 兼容，MarsbotCode 品牌入口仍显示 MarsbotCode。
+- 修复 ACP、serve、mcp-add 子进程在 Windows 临时工作目录下找不到 `bun` 的问题。
+- 修复 Windows slash-root 路径、Git Bash `/tmp`、`/usr/bin/bash`、Zed DB 路径和外部目录权限归一化问题。
+- 修复 EventV2 `/api/event` 输出缺少 `location.project` 的兼容性问题。
+- 修复 Git diff 中裸 `\r` 行导致 patch hunk 计数不一致的问题。
+- 对当前 Windows 环境无 symlink 创建权限的测试场景增加能力探测和条件跳过。
 
 ## 已验证事项
 
@@ -38,10 +43,11 @@
 - `bun --cwd packages/desktop build` 已执行通过。
 - `bun test test/config/config.test.ts -t "creates global jsonc config with schema when no global configs exist"` 已执行通过。
 - `bun test test/cli/help/help-snapshots.test.ts -t "every documented command emits stable help text"` 已执行通过。
+- `bun test test/shell/shell.test.ts test/tool/shell.test.ts` 已执行通过：`75 pass / 0 fail`。
+- `bun --cwd packages/opencode test` 已执行通过：`2956 pass / 58 skip / 1 todo / 0 fail`。
 
 ## 未完成事项
 
-- `bun --cwd packages/opencode test` 已可运行，但当前 Windows 环境仍有 30 个失败项，主要集中在 symlink 权限、路径规范化、ACP/serve 子进程 PATH、EventV2 location 缺失和少量 Zed DB 路径处理场景。
 - shell 工具的 OS 级沙箱强制包装尚未接入运行时。
 - Desktop 内的审计日志、沙箱状态和权限策略专用面板尚未完成。
 - 文件变更摘要的专用审计字段尚未完成，当前通过工具输出 metadata 记录部分摘要。
@@ -49,7 +55,6 @@
 
 ## 下一步建议
 
-- 优先修复 `packages/opencode` 全量测试中剩余的 Windows 兼容性失败项。
-- 在 `packages/opencode/src/tool/shell.ts` 或 shell 执行管线接入 OS 沙箱包装。
+- 进入下一阶段：在 `packages/opencode/src/tool/shell.ts` 或 shell 执行管线接入 OS 沙箱包装。
 - 完成 Desktop Beta 工作台里的沙箱状态、审计日志和权限审批可视化。
 - 为 edit/write/apply_patch 增加更结构化的文件变更审计摘要。

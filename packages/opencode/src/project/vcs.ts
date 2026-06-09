@@ -17,6 +17,44 @@ type DiffOptions = {
 
 const emptyPatch = (file: string) => formatPatch(structuredPatch(file, file, "", "", "", "", { context: 0 }))
 
+const hunkHeader = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)$/
+
+const formatHunkRange = (start: string, count: number, hadCount: boolean) =>
+  count === 1 && !hadCount ? start : `${start},${count}`
+
+const normalizePatchHunkCounts = (patch: string) => {
+  const lines = patch.split("\n")
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i].match(hunkHeader)
+    if (!match) continue
+
+    let oldCount = 0
+    let newCount = 0
+    for (let j = i + 1; j < lines.length; j++) {
+      const line = lines[j]
+      if (j === lines.length - 1 && line === "") break
+      if (line.startsWith("@@ ") || line.startsWith("diff --git ")) break
+      if (line.startsWith("\\")) continue
+      if (line.startsWith("+")) {
+        newCount++
+        continue
+      }
+      if (line.startsWith("-")) {
+        oldCount++
+        continue
+      }
+      oldCount++
+      newCount++
+    }
+
+    const [, oldStart, oldRaw, newStart, newRaw, suffix] = match
+    const nextOld = formatHunkRange(oldStart, oldCount, oldRaw !== undefined)
+    const nextNew = formatHunkRange(newStart, newCount, newRaw !== undefined)
+    lines[i] = `@@ -${nextOld} +${nextNew} @@${suffix}`
+  }
+  return lines.join("\n")
+}
+
 const nums = (list: Git.Stat[]) =>
   new Map(list.map((item) => [item.file, { additions: item.additions, deletions: item.deletions }] as const))
 
@@ -181,7 +219,7 @@ const files = Effect.fnUntraced(function* (
 
   for (const item of list.toSorted((a, b) => a.file.localeCompare(b.file))) {
     const stat = map.get(item.file) ?? (item.status === "added" ? yield* git.statUntracked(cwd, item.file) : undefined)
-    const patch = yield* patchForItem(git, cwd, ref, item, batch, capped, options)
+    const patch = normalizePatchHunkCounts(yield* patchForItem(git, cwd, ref, item, batch, capped, options))
     const result: { patch: string; capped: boolean } = capped
       ? { patch, capped: true }
       : totalPatch(item.file, patch, total)

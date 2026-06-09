@@ -3,6 +3,9 @@ import path from "path"
 import fs from "fs/promises"
 import { Glob } from "@opencode-ai/core/util/glob"
 import { tmpdir } from "../fixture/fixture"
+import { canCreateSymlink } from "../lib/symlink"
+
+const symlinkTest = (await canCreateSymlink("dir")) ? test : test.skip
 
 describe("Glob", () => {
   describe("scan()", () => {
@@ -74,7 +77,7 @@ describe("Glob", () => {
       expect(results).toEqual([])
     })
 
-    test("does not follow symlinks by default", async () => {
+    symlinkTest("does not follow symlinks by default", async () => {
       await using tmp = await tmpdir()
       await fs.mkdir(path.join(tmp.path, "realdir"))
       await fs.writeFile(path.join(tmp.path, "realdir", "file.txt"), "", "utf-8")
@@ -85,7 +88,7 @@ describe("Glob", () => {
       expect(results).toEqual([path.join("realdir", "file.txt")])
     })
 
-    test("follows symlinks when symlink option is true", async () => {
+    symlinkTest("follows symlinks when symlink option is true", async () => {
       await using tmp = await tmpdir()
       await fs.mkdir(path.join(tmp.path, "realdir"))
       await fs.writeFile(path.join(tmp.path, "realdir", "file.txt"), "", "utf-8")
