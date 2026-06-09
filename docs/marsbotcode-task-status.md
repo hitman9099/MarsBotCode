@@ -4,8 +4,8 @@
 
 - 记录日期：2026-06-09
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
-- 当前阶段：阻塞项解除与本地验证
-- 当前状态：Bun、Windows C++ Build Tools、依赖安装、类型检查、Desktop build 和 `packages/opencode` Windows 全量测试阻塞均已解除
+- 当前阶段：Shell 沙箱运行时 MVP
+- 当前状态：已接入 shell 执行链路的 OS 沙箱规划、Linux/macOS 包装命令生成、Windows 弱沙箱提示、shell metadata 和 `sandbox doctor` 真实入口验证
 - TodoList：见 `docs/marsbotcode-todolist.md`
 
 ## 已完成事项
@@ -32,6 +32,11 @@
 - 修复 EventV2 `/api/event` 输出缺少 `location.project` 的兼容性问题。
 - 修复 Git diff 中裸 `\r` 行导致 patch hunk 计数不一致的问题。
 - 对当前 Windows 环境无 symlink 创建权限的测试场景增加能力探测和条件跳过。
+- 新增 MarsbotCode 沙箱规划模块，统一输出平台能力、包装命令、运行状态和风险提示。
+- shell 工具已接入沙箱规划，运行结果 metadata 会记录 `active`、`weak`、`unavailable` 或 `disabled` 状态。
+- Linux 已接入 bubblewrap shell 包装规划；macOS 已接入 Seatbelt/sandbox-exec shell 包装规划。
+- Windows 已明确进入弱沙箱模式，并在产品输出中提示通过 WSL 或后续 Docker 沙箱执行高风险任务。
+- `marsbotcode sandbox doctor` 已复用统一沙箱规划能力，并读取当前项目配置。
 
 ## 已验证事项
 
@@ -44,17 +49,21 @@
 - `bun test test/config/config.test.ts -t "creates global jsonc config with schema when no global configs exist"` 已执行通过。
 - `bun test test/cli/help/help-snapshots.test.ts -t "every documented command emits stable help text"` 已执行通过。
 - `bun test test/shell/shell.test.ts test/tool/shell.test.ts` 已执行通过：`75 pass / 0 fail`。
-- `bun --cwd packages/opencode test` 已执行通过：`2956 pass / 58 skip / 1 todo / 0 fail`。
+- `bun --cwd packages/opencode test` 已执行通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
+- `bun test test/marsbot/sandbox.test.ts test/tool/shell.test.ts` 已执行通过：`72 pass / 0 fail`。
+- `bun --conditions=browser ./src/index.ts sandbox doctor` 已执行通过，并正确展示 Windows 弱沙箱、启用配置和网络域名限制提示。
 
 ## 未完成事项
 
-- shell 工具的 OS 级沙箱强制包装尚未接入运行时。
 - Desktop 内的审计日志、沙箱状态和权限策略专用面板尚未完成。
 - 文件变更摘要的专用审计字段尚未完成，当前通过工具输出 metadata 记录部分摘要。
+- OS 模式尚不能执行按域名的网络允许/拒绝规则；当前仅输出明确风险提示。
+- Windows 尚无强 OS 隔离，当前为弱沙箱提示模式；强隔离需要后续 WSL、Docker 或微虚拟机方案。
+- shell 敏感路径读取和非授权目录写入的专用产品策略仍需继续加强。
 - 企业分发所需的签名、公证、内网更新源和安装包验收尚未完成。
 
 ## 下一步建议
 
-- 进入下一阶段：在 `packages/opencode/src/tool/shell.ts` 或 shell 执行管线接入 OS 沙箱包装。
 - 完成 Desktop Beta 工作台里的沙箱状态、审计日志和权限审批可视化。
 - 为 edit/write/apply_patch 增加更结构化的文件变更审计摘要。
+- 继续增强 shell 权限策略：敏感路径读取拦截、非授权目录写入拦截和更细粒度的网络策略。

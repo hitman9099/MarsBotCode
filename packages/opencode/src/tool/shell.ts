@@ -15,6 +15,7 @@ import { Config } from "@/config/config"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { Shell } from "@/shell/shell"
 import { ShellID } from "./shell/id"
+import * as MarsbotSandbox from "@/marsbot/sandbox"
 
 import * as Truncate from "./truncate"
 import { Plugin } from "@/plugin"
@@ -299,7 +300,22 @@ const ask = Effect.fn("ShellTool.ask")(function* (
   })
 })
 
-function cmd(shell: string, command: string, cwd: string, env: NodeJS.ProcessEnv) {
+function cmd(
+  shell: string,
+  command: string,
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+  sandbox: MarsbotSandbox.SandboxPlan,
+) {
+  if (sandbox.command && sandbox.args) {
+    return ChildProcess.make(sandbox.command, sandbox.args, {
+      cwd,
+      env,
+      stdin: "ignore",
+      detached: process.platform !== "win32",
+    })
+  }
+
   if (process.platform === "win32" && Shell.ps(shell)) {
     return ChildProcess.make(shell, ["-NoLogo", "-NoProfile", "-NonInteractive", "-Command", command], {
       cwd,
@@ -442,6 +458,7 @@ export const ShellTool = Tool.define(
         env: NodeJS.ProcessEnv
         timeout: number
         description: string
+        sandbox: MarsbotSandbox.SandboxPlan
       },
       ctx: Tool.Context,
     ) {
@@ -486,13 +503,14 @@ export const ShellTool = Tool.define(
         metadata: {
           output: "",
           description: input.description,
+          sandbox: input.sandbox.status,
         },
       })
 
       const code: number | null = yield* Effect.scoped(
         Effect.gen(function* () {
           yield* Effect.addFinalizer(closeSink)
-          const handle = yield* spawner.spawn(cmd(input.shell, input.command, input.cwd, input.env))
+          const handle = yield* spawner.spawn(cmd(input.shell, input.command, input.cwd, input.env, input.sandbox))
 
           yield* Effect.forkScoped(
             Stream.runForEach(Stream.decodeText(handle.all), (chunk) => {
@@ -527,6 +545,7 @@ export const ShellTool = Tool.define(
                         metadata: {
                           output: last,
                           description: input.description,
+                          sandbox: input.sandbox.status,
                         },
                       }),
                     ),
@@ -538,6 +557,7 @@ export const ShellTool = Tool.define(
                 metadata: {
                   output: last,
                   description: input.description,
+                  sandbox: input.sandbox.status,
                 },
               })
             }),
@@ -599,6 +619,7 @@ export const ShellTool = Tool.define(
         output: last || preview(output),
         exit: code,
         description: input.description,
+        sandbox: input.sandbox.status,
         truncated: cut,
         ...(cut && file ? { outputPath: file } : {}),
       }
@@ -644,6 +665,12 @@ export const ShellTool = Tool.define(
                 }),
               )
 
+              const sandbox = MarsbotSandbox.plan({
+                config: cfg.sandbox,
+                shell,
+                shellArgs: Shell.args(shell, params.command, cwd),
+                cwd,
+              })
               return yield* run(
                 {
                   shell,
@@ -652,6 +679,7 @@ export const ShellTool = Tool.define(
                   env: yield* shellEnv(ctx, cwd),
                   timeout,
                   description: params.description,
+                  sandbox,
                 },
                 ctx,
               )

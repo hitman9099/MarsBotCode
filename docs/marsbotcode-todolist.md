@@ -71,9 +71,9 @@
 - [x] 新增 sandbox 默认配置字段。
 - [x] 新增 `sandbox doctor` 平台能力检查命令。
 - [x] Windows 弱沙箱风险说明已写入文档。
-- [ ] Linux bubblewrap shell 包装接入。
-- [ ] macOS Seatbelt/sandbox-exec shell 包装接入。
-- [ ] Windows WSL 高风险任务执行建议接入产品提示。
+- [x] Linux bubblewrap shell 包装接入。
+- [x] macOS Seatbelt/sandbox-exec shell 包装接入。
+- [x] Windows WSL 高风险任务执行建议接入产品提示。
 - [ ] shell 工具敏感路径读取拦截。
 - [ ] shell 工具非授权目录写入拦截。
 - [ ] 网络访问域名允许/拒绝规则接入运行时。
@@ -106,7 +106,8 @@
 - [x] `bun install` 已执行通过，并更新 `bun.lock`。
 - [x] `bun run typecheck` 已执行通过。
 - [x] Desktop build 已执行通过。
-- [x] `bun --cwd packages/opencode test` 已在 Windows 环境通过：`2956 pass / 58 skip / 1 todo / 0 fail`。
+- [x] `bun --cwd packages/opencode test` 已在 Windows 环境通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
+- [x] Shell 沙箱运行时 MVP 已验证：沙箱规划、shell metadata 和 `sandbox doctor` 入口均可用。
 - [ ] CI 流程切换为 MarsbotCode 私有化仓库策略。
 - [ ] 移除或调整仍指向 OpenCode 上游发布仓库的自动化流程。
 

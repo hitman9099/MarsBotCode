@@ -214,6 +214,52 @@ describe("tool.shell", () => {
       )
     }),
   )
+
+  it.live("reports sandbox metadata when sandbox is enabled", () =>
+    Effect.gen(function* () {
+      const tmp = yield* tmpdirScoped({ config: { sandbox: { enabled: true, mode: "os", allowWrite: ["./", "/tmp"] } } })
+      yield* runIn(
+        tmp,
+        Effect.gen(function* () {
+          const result = yield* run({
+            command: "echo sandbox",
+            description: "Echo sandbox metadata",
+          })
+          const sandbox = result.metadata.sandbox as {
+            enabled?: boolean
+            mode?: string
+            status: "active" | "weak" | "unavailable" | "disabled"
+            wrapped?: boolean
+          }
+          expect(sandbox.enabled).toBe(true)
+          expect(sandbox.mode).toBe("os")
+          expect(["active", "weak", "unavailable"]).toContain(sandbox.status)
+          expect(typeof sandbox.wrapped).toBe("boolean")
+        }),
+      )
+    }),
+  )
+
+  it.live("reports disabled sandbox metadata when sandbox mode is off", () =>
+    Effect.gen(function* () {
+      const tmp = yield* tmpdirScoped({ config: { sandbox: { enabled: true, mode: "off" } } })
+      yield* runIn(
+        tmp,
+        Effect.gen(function* () {
+          const result = yield* run({
+            command: "echo sandbox-off",
+            description: "Echo disabled sandbox metadata",
+          })
+          expect(result.metadata.sandbox).toMatchObject({
+            enabled: false,
+            mode: "off",
+            status: "disabled",
+            wrapped: false,
+          })
+        }),
+      )
+    }),
+  )
 })
 
 describe("tool.shell permissions", () => {
