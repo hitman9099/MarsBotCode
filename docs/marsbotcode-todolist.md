@@ -6,6 +6,22 @@
 - `[ ]`：尚未完成，需要后续开发或验证。
 - `阻塞`：当前受环境、依赖或外部条件限制，暂时无法完成。
 
+## 本阶段：Desktop 权限审批中心 MVP（2026-06-11）
+
+- [x] 新增 `buildMarsbotPermissionSummary(input)` 纯逻辑模块，按权限请求聚合 `permission.request/granted/rejected` 审计记录。
+- [x] 新增 `MarsbotCode Permissions` 桌面弹窗，展示 Requests、Granted、Rejected、Pending 统计。
+- [x] 权限中心支持 All/Pending/Granted/Rejected 筛选、本地搜索、刷新和打开审计目录。
+- [x] MarsbotCode 状态 popover 新增 `Permissions` 入口。
+- [x] MarsbotCode Workbench 新增 `Permissions` 入口。
+- [x] `bun test src/components/marsbot-permission-summary.test.ts` 已通过：3 pass / 0 fail。
+- [x] `git diff --check` 已通过，仅有 Windows 换行提示。
+- [x] `bun run typecheck` 已通过。
+- [x] `bun run release:stage -- --stage desktop-permission-center` 已通过，生成 `1.16.2-stage.094cd4c` 阶段发布包。
+- [x] CLI 发布包 smoke test 已通过：`bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.094cd4c`。
+- [x] Desktop Windows 可部署 zip 已验证包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
+- [ ] 实时全局权限审批队列和 allow/deny 弹窗仍未完成；当前 MVP 为审计型只读权限中心。
+- [ ] 权限规则编辑、团队默认策略和权限决策导出仍未完成。
+
 ## 本阶段：Desktop 工作台总览 MVP（2026-06-10）
 
 - [x] 新增 `buildMarsbotWorkbenchSummary(input)` 纯逻辑模块，聚合项目、会话、文件树、终端、沙箱和审计状态。
@@ -20,7 +36,7 @@
 - [x] Desktop Windows 可部署 zip 已验证包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
 - [ ] 完整 Agent 聊天工作台仍未完成。
 - [ ] Diff 接受/撤销建议仍未完成。
-- [ ] Desktop 权限审批 UI 仍未完成。
+- [ ] Desktop 实时权限审批 UI 仍未完成。
 
 ## 本阶段：Desktop MarsbotCode Insights MVP（2026-06-09）
 
@@ -36,7 +52,8 @@
 - [x] CLI 发布包 smoke test 已通过：`bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.cc0cd9f`。
 - [x] Desktop Windows 可部署 zip 已验证包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
 - [ ] 完整 Desktop 审计日志面板、分页、搜索和导出仍未完成。
-- [ ] Desktop 权限审批 UI 仍未完成。
+- [x] Desktop 权限审批中心 MVP 已完成。
+- [ ] Desktop 实时权限审批 UI 仍未完成。
 - [ ] Desktop 沙箱/审计面板的真实 Electron 截图验收仍需在后续桌面试点环境补充。
 
 ## 本阶段：Desktop 审计日志查看器 MVP（2026-06-09）
@@ -54,7 +71,8 @@
 - [x] Desktop Windows 可部署 zip 已验证包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
 - [ ] 审计日志导出仍未完成。
 - [ ] 审计日志分页/虚拟滚动仍未完成，当前 MVP 最多读取 200 条。
-- [ ] Desktop 权限审批 UI 仍未完成。
+- [x] Desktop 权限审批中心 MVP 已完成。
+- [ ] Desktop 实时权限审批 UI 仍未完成。
 
 ## 一、基础代码与品牌化
 
@@ -113,7 +131,8 @@
 - [x] Desktop 文件树入口已接入工作台总览。
 - [ ] Desktop Diff 查看和接受/撤销建议。
 - [x] Desktop 内置终端入口已接入工作台总览。
-- [ ] Desktop 权限审批 UI。
+- [x] Desktop 权限审批中心 MVP（审计型只读视图）。
+- [ ] Desktop 实时权限审批 UI（全局 pending 队列、allow/deny 弹窗）。
 - [ ] Desktop 沙箱状态面板。
 - [x] Desktop 审计日志查看器 MVP。
 - [ ] Desktop 设置中心。

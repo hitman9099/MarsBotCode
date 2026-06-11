@@ -87,7 +87,7 @@ Run:
 - `git diff --check`
 - `bun run typecheck`
 
-- [ ] **Step 2: Build stage release**
+- [x] **Step 2: Build stage release**
 
 Run: `bun run release:stage -- --stage desktop-permission-center`
 
@@ -97,14 +97,14 @@ Expected:
 - manifest and SHA256SUMS generated
 - Windows installer may fallback to `win-unpacked` zip in this environment
 
-- [ ] **Step 3: Smoke test release artifacts**
+- [x] **Step 3: Smoke test release artifacts**
 
 Verify:
 - extracted CLI `bin\marsbotcode.cmd --version` prints the stage version
 - Desktop zip contains `MarsbotCode Beta.exe`
 - Desktop zip contains `resources/app.asar`
 
-- [ ] **Step 4: Update docs**
+- [x] **Step 4: Update docs**
 
 Record:
 - stage version

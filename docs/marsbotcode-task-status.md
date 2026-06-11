@@ -2,11 +2,29 @@
 
 ## 记录信息
 
-- 记录日期：2026-06-10
+- 记录日期：2026-06-11
 - 目标仓库：`https://github.com/hitman9099/MarsBotCode.git`
-- 当前阶段：Desktop 工作台总览 MVP
-- 当前状态：Desktop 工作台总览已接入，阶段发布包已生成并通过 smoke test
+- 当前阶段：Desktop 权限审批中心 MVP
+- 当前状态：Desktop 权限中心已接入，阶段发布包已生成并通过 smoke test
 - TodoList：见 `docs/marsbotcode-todolist.md`
+
+## 本阶段新增记录：Desktop 权限审批中心 MVP
+
+- App 层新增 `buildMarsbotPermissionSummary(input)` 纯逻辑模块，用于聚合 `permission.request`、`permission.granted` 和 `permission.rejected` 审计记录。
+- 权限汇总支持按 `permissionID`、`id`、`callID` 或审计来源行分组，并计算 Requests、Granted、Rejected、Pending。
+- Desktop 新增 `MarsbotCode Permissions` 弹窗，包含统计卡片、All/Pending/Granted/Rejected 筛选、本地搜索、刷新、打开审计目录和权限记录列表。
+- MarsbotCode 状态 popover 新增 `Permissions` 入口。
+- MarsbotCode Workbench 新增 `Permissions` 入口，与审计日志入口并列。
+- 本阶段已验证：`bun test src/components/marsbot-permission-summary.test.ts`、`git diff --check`、`bun run typecheck`。
+- 阶段发布命令已通过：`bun run release:stage -- --stage desktop-permission-center`。
+- 发布版本：`1.16.2-stage.094cd4c`。
+- 发布 manifest：`dist/marsbotcode-stage/desktop-permission-center-1.16.2-stage.094cd4c-094cd4c/manifest.json`。
+- CLI 发布包：`dist/marsbotcode-stage/desktop-permission-center-1.16.2-stage.094cd4c-094cd4c/cli/marsbotcode-cli-windows-x64-1.16.2-stage.094cd4c.zip`，SHA256 `50da32925777d9f25d264226c2ae3f5d26e59eac02c8b352c9867ed094080552`。
+- Desktop 发布包：`dist/marsbotcode-stage/desktop-permission-center-1.16.2-stage.094cd4c-094cd4c/desktop/marsbotcode-desktop-windows-x64-unpacked-1.16.2-stage.094cd4c.zip`，SHA256 `bcaae25cc2802d2782965be3a6ed621caf9891113c6e415b11473fd1ede481dd`。
+- 发布包 smoke test 已通过：CLI zip 解压后 `bin\marsbotcode.cmd --version` 输出 `1.16.2-stage.094cd4c`；Desktop zip 包含 `MarsbotCode Beta.exe` 和 `resources/app.asar`。
+- `packages/opencode` 全量测试已通过：`2963 pass / 58 skip / 1 todo / 0 fail`。
+- Windows NSIS installer 在当前环境仍因 symlink 权限问题 fallback 到 `win-unpacked` zip，manifest 已记录 `WINDOWS_INSTALLER_FALLBACK`。
+- 当前限制：该阶段是审计型只读权限中心，不替代实时全局 pending 队列、allow/deny 弹窗、权限规则编辑和权限决策导出。
 
 ## 本阶段新增记录：Desktop 工作台总览 MVP
 
@@ -115,7 +133,7 @@
 
 ## 未完成事项
 
-- Desktop 内的审计日志查看器 MVP 已完成；沙箱状态和权限审批专用面板尚未完成。
+- Desktop 内的审计日志查看器 MVP 和权限审批中心 MVP 已完成；沙箱状态专用面板、实时权限审批队列和规则编辑尚未完成。
 - 文件变更摘要的专用审计字段尚未完成，当前通过工具输出 metadata 记录部分摘要。
 - OS 模式尚不能执行按域名的网络允许/拒绝规则；当前仅输出明确风险提示。
 - Windows 尚无强 OS 隔离，当前为弱沙箱提示模式；强隔离需要后续 WSL、Docker 或微虚拟机方案。
@@ -126,5 +144,5 @@
 ## 下一步建议
 
 - 在具备 Windows symlink 权限或预置 `winCodeSign` 缓存的环境中补充 NSIS installer 验收。
-- 完成 Desktop Beta 工作台里的沙箱状态、审计日志和权限审批可视化。
+- 完成 Desktop Beta 工作台里的沙箱状态专用面板、实时权限审批队列和权限规则编辑。
 - 进入下一个阶段：Desktop Beta 工作台的项目选择、会话管理、审计日志和沙箱状态可视化。
