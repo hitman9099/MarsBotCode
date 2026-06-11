@@ -114,7 +114,7 @@ Record:
 - verification results
 - known installer fallback limitation
 
-- [ ] **Step 5: Commit and push**
+- [x] **Step 5: Commit and push**
 
 Commit feature work with `feat: add desktop permission center`.
 Commit release documentation with `docs: record desktop permission center release`.
