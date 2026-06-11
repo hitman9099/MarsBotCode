@@ -23,6 +23,7 @@ type DialogMarsbotWorkbenchProps = {
   onOpenSession: (id: string) => void
   onOpenFileTree: () => void
   onToggleTerminal: () => void
+  onViewPermissions: () => void
   onViewAudit: () => void
 }
 
@@ -181,6 +182,9 @@ export function DialogMarsbotWorkbench(props: DialogMarsbotWorkbenchProps) {
               </Button>
               <Button variant="secondary" size="small" icon="terminal" disabled={!hasProject()} onClick={() => runAndClose(dialog, props.onToggleTerminal)}>
                 Toggle terminal
+              </Button>
+              <Button variant="ghost" size="small" icon="checklist" disabled={!hasProject()} onClick={() => runAndClose(dialog, props.onViewPermissions)}>
+                Permissions
               </Button>
               <Button variant="ghost" size="small" icon="review" disabled={!hasProject()} onClick={() => runAndClose(dialog, props.onViewAudit)}>
                 View audit log

@@ -183,6 +183,7 @@ function MarsbotCodePanel(props: {
   loading: () => boolean
   onOpenAudit: (path: string) => void
   onRefresh: () => void
+  onViewPermissions: () => void
   onViewAudit: () => void
   onViewWorkbench: () => void
 }) {
@@ -264,6 +265,15 @@ function MarsbotCodePanel(props: {
                           onClick={() => props.onOpenAudit(auditPath())}
                         >
                           Open audit dir
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="small"
+                          icon="checklist"
+                          class="h-7 px-2 mt-1 ml-1 self-start"
+                          onClick={props.onViewPermissions}
+                        >
+                          Permissions
                         </Button>
                         <Button
                           variant="secondary"
@@ -518,6 +528,14 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
       dialog.show(() => <x.DialogMarsbotAudit directory={directory} />)
     })
   }
+  const viewMarsbotPermissions = () => {
+    const directory = projectDirectory()
+    const run = ++dialogRun
+    void import("./dialog-marsbot-permissions").then((x) => {
+      if (dialogDead || dialogRun !== run) return
+      dialog.show(() => <x.DialogMarsbotPermissions directory={directory} />)
+    })
+  }
   const viewMarsbotWorkbench = () => {
     const directory = projectDirectory()
     const run = ++dialogRun
@@ -542,6 +560,7 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
           }}
           onOpenFileTree={() => layout.fileTree.open()}
           onToggleTerminal={() => sessionView().terminal.toggle()}
+          onViewPermissions={viewMarsbotPermissions}
           onViewAudit={viewMarsbotAudit}
         />
       ))
@@ -770,6 +789,7 @@ export function StatusPopoverBody(props: { shown: Accessor<boolean> }) {
               loading={() => marsbotInsights.loading}
               onOpenAudit={openMarsbotAudit}
               onRefresh={() => setMarsbotRefresh((value) => value + 1)}
+              onViewPermissions={viewMarsbotPermissions}
               onViewAudit={viewMarsbotAudit}
               onViewWorkbench={viewMarsbotWorkbench}
             />
