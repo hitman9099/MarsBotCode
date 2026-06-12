@@ -47,6 +47,7 @@ import { useSettings } from "@/context/settings"
 import { ServerRowMenu } from "@/components/server/server-row-menu"
 import { ServerHealthIndicator } from "@/components/server/server-row"
 import { type ServerHealth } from "@/utils/server-health"
+import { shouldShowMarsbotHomeEmptyState, shouldShowMarsbotProjectSidebarEmptyState } from "./home-empty-state"
 
 const HOME_SESSION_LIMIT = 64
 const HOME_ROW_LAYOUT =
@@ -394,12 +395,31 @@ function HomeDesign() {
                 <Show
                   when={groups().length > 0}
                   fallback={
-                    <div class="flex min-w-0 flex-col gap-4">
-                      <HomeSessionGroupHeader
-                        title={language.t("home.sessions.empty")}
-                        onNewSession={newSessionProject() ? openNewSession : undefined}
+                    <Show
+                      when={shouldShowMarsbotHomeEmptyState({
+                        projectCount: projects().length,
+                        search: state.search,
+                        loading: sessionLoad.isLoading,
+                      })}
+                      fallback={
+                        <div class="flex min-w-0 flex-col gap-4">
+                          <HomeSessionGroupHeader
+                            title={language.t("home.sessions.empty")}
+                            onNewSession={newSessionProject() ? openNewSession : undefined}
+                          />
+                        </div>
+                      }
+                    >
+                      <MarsbotCodeEmptyHome
+                        serverName={focusedServer()?.displayName ?? server.name}
+                        onOpenProject={() => {
+                          const conn = focusedServer()
+                          if (!conn) return
+                          void chooseProject(conn)
+                        }}
+                        onOpenSettings={openSettings}
                       />
-                    </div>
+                    </Show>
                   }
                 >
                   <For each={groups()}>
@@ -429,6 +449,112 @@ function HomeDesign() {
             </div>
           </ScrollView>
         </section>
+      </div>
+    </div>
+  )
+}
+
+const MARSBOT_HOME_MODULES = [
+  { label: "Agent 聊天", status: "可用", detail: "会话运行时和项目上下文" },
+  { label: "权限中心", status: "Beta", detail: "请求、允许、拒绝和待处理审计" },
+  { label: "审计日志", status: "可用", detail: "工具调用、Shell 输出和权限决策" },
+  { label: "沙箱状态", status: "Beta", detail: "Windows 弱沙箱、macOS 和 Linux OS 包装" },
+  { label: "内置终端", status: "可用", detail: "本地命令、审批和审计记录" },
+  { label: "Diff 审查", status: "后续", detail: "接受和撤销建议流程仍在建设" },
+]
+
+function MarsbotCodeEmptyHome(props: {
+  serverName: string
+  onOpenProject: () => void
+  onOpenSettings: () => void
+}) {
+  return (
+    <div class="min-h-[520px] min-w-0 overflow-hidden rounded-[8px] border border-v2-border-border-base bg-v2-background-bg-layer-01">
+      <div class="grid min-h-[520px] grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)]">
+        <div class="flex min-w-0 flex-col justify-between gap-10 border-b border-v2-border-border-base p-6 lg:border-b-0 lg:border-r">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2">
+              <div class="flex h-8 w-8 items-center justify-center rounded-[6px] bg-[#111111] text-[15px] font-semibold text-[#ffad33]">
+                M
+              </div>
+              <div class="min-w-0">
+                <div class="text-[17px] leading-6 text-v2-text-text-base [font-weight:640]">MarsbotCode</div>
+                <div class="text-[12px] leading-4 text-v2-text-text-muted">Desktop Beta</div>
+              </div>
+            </div>
+
+            <div class="mt-10 max-w-[420px]">
+              <div class="text-[28px] leading-[34px] tracking-[0px] text-v2-text-text-base [font-weight:680]">
+                私有化 AI Coding 工作台
+              </div>
+              <div class="mt-3 text-[13px] leading-5 text-v2-text-text-muted">
+                打开本地项目后展示会话、文件、终端输出、审计记录、沙箱状态和权限决策。
+              </div>
+            </div>
+
+            <div class="mt-6 flex flex-wrap items-center gap-2">
+              <ButtonV2 variant="contrast" size="normal" icon="folder-add-left" onClick={props.onOpenProject}>
+                打开项目
+              </ButtonV2>
+              <ButtonV2 variant="neutral" size="normal" icon="settings-gear" onClick={props.onOpenSettings}>
+                配置模型
+              </ButtonV2>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="rounded-[6px] border border-v2-border-border-base bg-v2-background-bg-base px-3 py-2">
+              <div class="text-[11px] leading-4 text-v2-text-text-muted">本地服务</div>
+              <div class="mt-1 truncate text-[13px] leading-4 text-v2-text-text-base [font-weight:560]">{props.serverName}</div>
+            </div>
+            <div class="rounded-[6px] border border-v2-border-border-base bg-v2-background-bg-base px-3 py-2">
+              <div class="text-[11px] leading-4 text-v2-text-text-muted">发布通道</div>
+              <div class="mt-1 truncate text-[13px] leading-4 text-v2-text-text-base [font-weight:560]">Beta</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="min-w-0 p-6">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-[13px] leading-5 text-v2-text-text-base [font-weight:620]">工作台模块</div>
+              <div class="text-[12px] leading-4 text-v2-text-text-muted">当前 MVP 可演示范围</div>
+            </div>
+            <div class="rounded-[999px] border border-v2-border-border-base px-2.5 py-1 text-[11px] leading-4 text-v2-text-text-muted">
+              可演示
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <For each={MARSBOT_HOME_MODULES}>
+              {(module) => (
+                <div class="min-h-[96px] rounded-[6px] border border-v2-border-border-base bg-v2-background-bg-base p-3">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="truncate text-[13px] leading-5 text-v2-text-text-base [font-weight:600]">{module.label}</div>
+                    <span class="shrink-0 rounded-[4px] border border-v2-border-border-muted px-1.5 py-0.5 text-[10px] leading-3 text-v2-text-text-muted">
+                      {module.status}
+                    </span>
+                  </div>
+                  <div class="mt-2 line-clamp-2 text-[12px] leading-4 text-v2-text-text-muted">{module.detail}</div>
+                </div>
+              )}
+            </For>
+          </div>
+
+          <div class="mt-4 rounded-[6px] border border-v2-border-border-base bg-v2-background-bg-base p-3">
+            <div class="flex items-start gap-3">
+              <div class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-[6px] bg-v2-background-bg-layer-02">
+                <Icon name="shield" size="small" />
+              </div>
+              <div class="min-w-0">
+                <div class="text-[13px] leading-5 text-v2-text-text-base [font-weight:600]">企业私有化部署</div>
+                <div class="mt-1 text-[12px] leading-4 text-v2-text-text-muted">
+                  Provider 配置、本地审计记录和沙箱状态会绑定到当前选择的工作区。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -586,33 +712,118 @@ function HomeProjectList(props: {
   selected: HomeProjectSelection
   selectProject: (server: ServerConnection.Any, directory: string) => void
   openNewSession: (server: ServerConnection.Any, directory: string) => void
+  chooseProject: (server: ServerConnection.Any) => void
   editProject: (server: ServerConnection.Any, project: LocalProject) => void
   closeProject: (server: ServerConnection.Any, directory: string) => void
   clearNotifications: (server: ServerConnection.Any, project: LocalProject) => void
   unseenCount: (server: ServerConnection.Any, project: LocalProject) => number
+  openSettings: () => void
   language: ReturnType<typeof useLanguage>
 }) {
   return (
     <div class="flex min-w-0 flex-col gap-1">
-      <For each={props.projects}>
-        {(project) => (
-          <HomeProjectRow
-            project={project}
-            server={props.server}
-            selected={
-              props.selected.server === ServerConnection.key(props.server) &&
-              props.selected.directory === project.worktree
-            }
-            unseenCount={props.unseenCount(props.server, project)}
-            selectProject={props.selectProject}
-            openNewSession={props.openNewSession}
-            editProject={props.editProject}
-            closeProject={props.closeProject}
-            clearNotifications={props.clearNotifications}
-            language={props.language}
+      <Show
+        when={!shouldShowMarsbotProjectSidebarEmptyState({ projectCount: props.projects.length })}
+        fallback={
+          <MarsbotCodeProjectSidebarEmpty
+            serverName={props.server.displayName ?? new URL(props.server.http.url).host}
+            openProject={() => props.chooseProject(props.server)}
+            openSettings={props.openSettings}
           />
-        )}
-      </For>
+        }
+      >
+        <For each={props.projects}>
+          {(project) => (
+            <HomeProjectRow
+              project={project}
+              server={props.server}
+              selected={
+                props.selected.server === ServerConnection.key(props.server) &&
+                props.selected.directory === project.worktree
+              }
+              unseenCount={props.unseenCount(props.server, project)}
+              selectProject={props.selectProject}
+              openNewSession={props.openNewSession}
+              editProject={props.editProject}
+              closeProject={props.closeProject}
+              clearNotifications={props.clearNotifications}
+              language={props.language}
+            />
+          )}
+        </For>
+      </Show>
+    </div>
+  )
+}
+
+function MarsbotCodeProjectSidebarEmpty(props: {
+  serverName: string
+  openProject: () => void
+  openSettings: () => void
+}) {
+  return (
+    <div class="flex min-w-0 flex-col gap-4">
+      <div class="flex min-w-0 flex-col gap-1">
+        <button type="button" class={`${HOME_PROJECT_NAV_ROW} text-v2-text-text-base`} onClick={props.openProject}>
+          <IconV2 name="edit" size="small" />
+          <span class={HOME_PROJECT_NAV_LABEL}>新建工作区</span>
+        </button>
+        <button type="button" class={`${HOME_PROJECT_NAV_ROW} text-v2-text-text-base`} onClick={props.openProject}>
+          <IconV2 name="folder-add-left" size="small" />
+          <span class={HOME_PROJECT_NAV_LABEL}>打开项目</span>
+        </button>
+        <button type="button" class={`${HOME_PROJECT_NAV_ROW} text-v2-text-text-muted`} onClick={props.openSettings}>
+          <IconV2 name="settings-gear" size="small" />
+          <span class={HOME_PROJECT_NAV_LABEL}>配置模型</span>
+        </button>
+      </div>
+
+      <div class="min-w-0 rounded-[8px] border border-v2-border-border-base bg-v2-background-bg-layer-01 p-2">
+        <div class="px-1.5 pb-2 text-[11px] leading-4 text-v2-text-text-muted [font-weight:520]">项目</div>
+        <button
+          type="button"
+          class="flex w-full min-w-0 flex-col gap-2 rounded-[6px] border border-dashed border-v2-border-border-muted bg-v2-background-bg-base px-3 py-3 text-left transition-colors hover:bg-v2-background-bg-layer-02 focus-visible:outline-none"
+          onClick={props.openProject}
+        >
+          <div class="flex items-center gap-2">
+            <div class="flex size-7 shrink-0 items-center justify-center rounded-[6px] bg-[#111111] text-[13px] [font-weight:680] text-[#ffad33]">
+              M
+            </div>
+            <div class="min-w-0">
+              <div class="truncate text-[13px] leading-4 text-v2-text-text-base [font-weight:600]">添加本地仓库</div>
+              <div class="mt-0.5 truncate text-[11px] leading-4 text-v2-text-text-muted">选择目录后开始会话</div>
+            </div>
+          </div>
+          <div class="text-[11px] leading-4 text-v2-text-text-muted">会话、文件树、终端、审计和权限中心会跟随项目加载。</div>
+        </button>
+      </div>
+
+      <div class="min-w-0 rounded-[8px] border border-v2-border-border-base bg-v2-background-bg-layer-01 p-2">
+        <div class="px-1.5 pb-2 text-[11px] leading-4 text-v2-text-text-muted [font-weight:520]">运行状态</div>
+        <div class="flex flex-col gap-1">
+          <MarsbotSidebarStatusRow label="本地服务" value={props.serverName} tone="ready" />
+          <MarsbotSidebarStatusRow label="权限中心" value="审计可见" tone="ready" />
+          <MarsbotSidebarStatusRow label="沙箱模式" value="Windows 弱隔离" tone="warning" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MarsbotSidebarStatusRow(props: { label: string; value: string; tone: "ready" | "warning" }) {
+  return (
+    <div class="flex min-w-0 items-center gap-2 rounded-[6px] px-1.5 py-1.5">
+      <div
+        classList={{
+          "size-1.5 shrink-0 rounded-full": true,
+          "bg-icon-success-base": props.tone === "ready",
+          "bg-icon-warning-base": props.tone === "warning",
+        }}
+      />
+      <div class="min-w-0 flex-1 truncate text-[12px] leading-4 text-v2-text-text-muted">{props.label}</div>
+      <div class="max-w-[118px] shrink-0 truncate text-[12px] leading-4 text-v2-text-text-base [font-weight:520]">
+        {props.value}
+      </div>
     </div>
   )
 }

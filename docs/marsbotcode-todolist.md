@@ -6,6 +6,21 @@
 - `[ ]`：尚未完成，需要后续开发或验证。
 - `阻塞`：当前受环境、依赖或外部条件限制，暂时无法完成。
 
+## 本阶段：Desktop 演示首屏空态优化（2026-06-12）
+
+- [x] Home 无项目、无搜索、非加载状态下展示 MarsbotCode 私有化 AI Coding 工作台演示面板。
+- [x] 左侧项目栏无项目时补齐快捷入口、添加本地仓库卡片和运行状态，减少空白并贴近 Codex 侧栏信息密度。
+- [x] 新增 `shouldShowMarsbotHomeEmptyState(input)` 和 `shouldShowMarsbotProjectSidebarEmptyState(input)` 纯逻辑测试。
+- [x] `bun test src/pages/home-empty-state.test.ts` 已通过：3 pass / 0 fail。
+- [x] `bun run typecheck` 已通过。
+- [x] `git diff --check` 已通过，仅有 Windows 换行提示。
+- [x] `bun run --cwd packages/desktop build` 已通过。
+- [x] `$env:MARSBOTCODE_SKIP_WIN_SIGN_EDIT='true'; bun run --cwd packages/desktop package:win --dir` 已通过，生成可演示 `win-unpacked` 目录包。
+- [x] `packages/desktop/dist/win-unpacked/MarsbotCode Dev.exe` 已重新启动，主窗口标题为 `MarsbotCode`。
+- [x] `app.asar` 已验证包含左侧新增文案：`新建工作区`、`添加本地仓库`、`运行状态`、`Windows 弱隔离`。
+- [ ] Computer Use 截图验收暂未完成，当前环境报 `@oai/sky` package exports 不匹配；本次以包内容和进程启动验证兜底。
+- [ ] 该演示修复尚未生成独立安装器/zip 发布包，当前可部署形态为未签名 `win-unpacked` 目录包。
+
 ## 本阶段：Desktop 权限审批中心 MVP（2026-06-11）
 
 - [x] 新增 `buildMarsbotPermissionSummary(input)` 纯逻辑模块，按权限请求聚合 `permission.request/granted/rejected` 审计记录。
